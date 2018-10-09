@@ -94,7 +94,7 @@ async def stats(ctx):
 async def id(ctx):
     args = ctx.message.content.split(" ")
     idurl = "https://calculated.gg/api/player/{}".format(args[1])
-    responseID = get_json("https://calculated.gg/api/player/{}".format(args[1]))
+    responseID = get_json(idurl)
 
     await bot.send_message(ctx.message.channel, "Your Calculated ID is " + responseID)
 
