@@ -10,7 +10,6 @@ except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
 
-
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
 
@@ -41,9 +40,10 @@ async def display_full_queue():
         description=say,
         colour=discord.Colour.blue()
     )
-    for queue_priority in [0, 3, 6, 9]:
+    names = ['Internal', 'Priority', 'Public', 'Reparsing']
+    for index, queue_priority in enumerate([0, 3, 6, 9]):
         msg = str(response["priority " + str(queue_priority)])
-        embed.add_field(name="Priority " + str(queue_priority), value=msg,
+        embed.add_field(name=names[index], value=msg,
                         inline=True)
 
     await bot.say(embed=embed)
@@ -61,7 +61,6 @@ async def stats(ctx):
     carName = responseStats["car"]["carName"]
     carPercantage = str(round(responseStats["car"]["carPercentage"] * 100, 1)) + "%"
 
-
     responseProfile = get_json("https://calculated.gg/api/player/{}/profile".format(id))
 
     avatarLink = responseProfile["avatarLink"]
@@ -69,20 +68,20 @@ async def stats(ctx):
     platform = responseProfile["platform"]
     pastNames = responseProfile["pastNames"]
 
-
     list_pastNames = ""
     for x in pastNames:
         list_pastNames = list_pastNames + x + "\n"
 
-
     if platform == "Steam":
         platformURL = "https://cdn.discordapp.com/attachments/317990830331658240/498493530402979842/latest.png"
-
+    else:
+        platformURL = ""
     stats_embed = discord.Embed(
         color=discord.Color.blue()
     )
 
-    stats_embed.set_author(name=authorName, url="https://calculated.gg/players/{}/overview".format(id), icon_url=platformURL)
+    stats_embed.set_author(name=authorName, url="https://calculated.gg/players/{}/overview".format(id),
+                           icon_url=platformURL)
     stats_embed.set_thumbnail(url=avatarLink)
     stats_embed.add_field(name="Favourite car", value=carName + " (" + carPercantage + ")")
     stats_embed.add_field(name="Past names", value=list_pastNames)
