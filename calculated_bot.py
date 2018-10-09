@@ -92,36 +92,38 @@ async def display_full_queue():
 async def get_stats(ctx):
     args = ctx.message.content.split(" ")
 
-    idurl = "https://calculated.gg/api/player/{}".format(args[1])
-    responseID = requests.get(idurl)
-    id = responseID.json()
+    response_id = get_json("https://calculated.gg/api/player/{}".format(args[1]))
+    id = response_id
 
-    urlStats = "https://calculated.gg/api/player/{}/profile_stats".format(id)
-    responseStats = requests.get(urlStats)
+    response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
 
-    carName = responseStats.json()["car"]["carName"]
-    carPercantage = str(round(responseStats.json()["car"]["carPercentage"] * 100, 1)) + "%"
+    car_name = response_stats["car"]["carName"]
+    car_percentage = str(round(response_stats["car"]["carPercentage"] * 100, 1)) + "%"
 
-    urlProfile = "https://calculated.gg/api/player/{}/profile".format(id)
-    responseProfile = requests.get(urlProfile)
+    response_profile = get_json("https://calculated.gg/api/player/{}/profile".format(id))
 
-    avatarLink = responseProfile.json()["avatarLink"]
-    authorName = responseProfile.json()["name"]
-    pastNames = responseProfile.json()["pastNames"]
+    avatar_link = response_profile["avatarLink"]
+    avatar_name = response_profile["name"]
+    platform = response_profile["platform"]
+    past_names = response_profile["pastNames"]
 
-    list_pastNames = ""
-    for x in pastNames:
-        list_pastNames = list_pastNames + x + "\n"
+    list_past_names = ""
+    for x in past_names:
+        list_past_names = list_past_names + x + "\n"
 
+    if platform == "Steam":
+        platform_url = "https://cdn.discordapp.com/attachments/317990830331658240/498493530402979842/latest.png"
+    else:
+        platform_url = ""
     stats_embed = discord.Embed(
         color=discord.Color.blue()
     )
 
-    stats_embed.set_author(name=authorName, url="https://calculated.gg/players/{}/overview".format(id),
+    stats_embed.set_author(name=avatar_name, url="https://calculated.gg/players/{}/overview".format(id),
                            icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
-    stats_embed.set_thumbnail(url=avatarLink)
-    stats_embed.add_field(name="Favourite car", value=carName + " (" + carPercantage + ")")
-    stats_embed.add_field(name="Past names", value=list_pastNames)
+    stats_embed.set_thumbnail(url=avatar_link)
+    stats_embed.add_field(name="Favourite car", value=car_name + " (" + car_percentage + ")")
+    stats_embed.add_field(name="Past names", value=list_past_names)
 
     await bot.send_message(ctx.message.channel, embed=stats_embed)
 
