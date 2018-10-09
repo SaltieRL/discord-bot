@@ -10,6 +10,7 @@ except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
 
+
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
 
@@ -29,7 +30,6 @@ async def display_queue():
     await bot.say(str(response['priority 3']) + ' replays in the queue.')
 
 
-
 @bot.command(name="fullqueue")
 async def display_full_queue():
     response = get_json("https://calculated.gg/api/global/queue/count")
@@ -47,6 +47,56 @@ async def display_full_queue():
                         inline=True)
 
     await bot.say(embed=embed)
+
+
+@bot.command(pass_context=True)
+async def stats(ctx):
+    args = ctx.message.content.split(" ")
+
+    responseID = get_json("https://calculated.gg/api/player/{}".format(args[1]))
+    id = responseID
+
+    responseStats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
+
+    carName = responseStats["car"]["carName"]
+    carPercantage = str(round(responseStats["car"]["carPercentage"] * 100, 1)) + "%"
+
+
+    responseProfile = get_json("https://calculated.gg/api/player/{}/profile".format(id))
+
+    avatarLink = responseProfile["avatarLink"]
+    authorName = responseProfile["name"]
+    platform = responseProfile["platform"]
+    pastNames = responseProfile["pastNames"]
+
+
+    list_pastNames = ""
+    for x in pastNames:
+        list_pastNames = list_pastNames + x + "\n"
+
+
+    if platform == "Steam":
+        platformURL = "https://cdn.discordapp.com/attachments/317990830331658240/498493530402979842/latest.png"
+
+    stats_embed = discord.Embed(
+        color=discord.Color.blue()
+    )
+
+    stats_embed.set_author(name=authorName, url="https://calculated.gg/players/{}/overview".format(id), icon_url=platformURL)
+    stats_embed.set_thumbnail(url=avatarLink)
+    stats_embed.add_field(name="Favourite car", value=carName + " (" + carPercantage + ")")
+    stats_embed.add_field(name="Past names", value=list_pastNames)
+
+    await bot.send_message(ctx.message.channel, embed=stats_embed)
+
+
+@bot.command(pass_context=True)
+async def id(ctx):
+    args = ctx.message.content.split(" ")
+    idurl = "https://calculated.gg/api/player/{}".format(args[1])
+    responseID = get_json("https://calculated.gg/api/player/{}".format(args[1]))
+
+    await bot.send_message(ctx.message.channel, "Your Calculated ID is " + responseID)
 
 
 @bot.command(name="help", aliases="h")
