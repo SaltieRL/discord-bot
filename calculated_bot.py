@@ -10,7 +10,6 @@ except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
 
-
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
 
@@ -41,9 +40,10 @@ async def display_full_queue():
         description=say,
         colour=discord.Colour.blue()
     )
-    for queue_priority in [0, 3, 6, 9]:
+    names = ['Internal', 'Priority', 'Public', 'Reparsing']
+    for index, queue_priority in enumerate([0, 3, 6, 9]):
         msg = str(response["priority " + str(queue_priority)])
-        embed.add_field(name="Priority " + str(queue_priority), value=msg,
+        embed.add_field(name=names[index], value=msg,
                         inline=True)
 
     await bot.say(embed=embed)
@@ -53,39 +53,38 @@ async def display_full_queue():
 async def stats(ctx):
     args = ctx.message.content.split(" ")
 
-    responseID = get_json("https://calculated.gg/api/player/{}".format(args[1]))
-    id = responseID
+    response_id = get_json("https://calculated.gg/api/player/{}".format(args[1]))
+    id = response_id
 
-    responseStats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
+    response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
 
-    carName = responseStats["car"]["carName"]
-    carPercantage = str(round(responseStats["car"]["carPercentage"] * 100, 1)) + "%"
+    car_name = response_stats["car"]["carName"]
+    car_percentage = str(round(response_stats["car"]["carPercentage"] * 100, 1)) + "%"
 
+    response_profile = get_json("https://calculated.gg/api/player/{}/profile".format(id))
 
-    responseProfile = get_json("https://calculated.gg/api/player/{}/profile".format(id))
+    avatar_link = response_profile["avatarLink"]
+    avatar_name = response_profile["name"]
+    platform = response_profile["platform"]
+    past_names = response_profile["pastNames"]
 
-    avatarLink = responseProfile["avatarLink"]
-    authorName = responseProfile["name"]
-    platform = responseProfile["platform"]
-    pastNames = responseProfile["pastNames"]
-
-
-    list_pastNames = ""
-    for x in pastNames:
-        list_pastNames = list_pastNames + x + "\n"
-
+    list_past_names = ""
+    for x in past_names:
+        list_past_names = list_past_names + x + "\n"
 
     if platform == "Steam":
-        platformURL = "https://cdn.discordapp.com/attachments/317990830331658240/498493530402979842/latest.png"
-
+        platform_url = "https://cdn.discordapp.com/attachments/317990830331658240/498493530402979842/latest.png"
+    else:
+        platform_url = ""
     stats_embed = discord.Embed(
         color=discord.Color.blue()
     )
 
-    stats_embed.set_author(name=authorName, url="https://calculated.gg/players/{}/overview".format(id), icon_url=platformURL)
-    stats_embed.set_thumbnail(url=avatarLink)
-    stats_embed.add_field(name="Favourite car", value=carName + " (" + carPercantage + ")")
-    stats_embed.add_field(name="Past names", value=list_pastNames)
+    stats_embed.set_author(name=avatar_name, url="https://calculated.gg/players/{}/overview".format(id),
+                           icon_url=platform_url)
+    stats_embed.set_thumbnail(url=avatar_link)
+    stats_embed.add_field(name="Favourite car", value=car_name + " (" + car_percentage + ")")
+    stats_embed.add_field(name="Past names", value=list_past_names)
 
     await bot.send_message(ctx.message.channel, embed=stats_embed)
 
@@ -94,7 +93,7 @@ async def stats(ctx):
 async def id(ctx):
     args = ctx.message.content.split(" ")
     idurl = "https://calculated.gg/api/player/{}".format(args[1])
-    responseID = get_json("https://calculated.gg/api/player/{}".format(args[1]))
+    responseID = get_json(idurl)
 
     await bot.send_message(ctx.message.channel, "Your Calculated ID is " + responseID)
 
