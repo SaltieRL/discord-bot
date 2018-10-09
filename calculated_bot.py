@@ -26,6 +26,13 @@ async def ping():
 @bot.command(name="queue", aliases="q")
 async def display_queue():
     response = get_json("https://calculated.gg/api/global/queue/count")
+    await bot.say(str(response['priority 3']) + ' replays in the queue.')
+
+
+
+@bot.command(name="fullqueue")
+async def display_full_queue():
+    response = get_json("https://calculated.gg/api/global/queue/count")
 
     say = "Number of replays in each queue."
 
