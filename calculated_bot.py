@@ -4,11 +4,16 @@ import discord
 import requests
 from discord.ext.commands import Bot
 
+'''
 try:
     from config import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
+'''
+
+BOT_PREFIX = "!"
+TOKEN = "NDk3NDIxNjY1MjUzMTk1Nzg3.Dpe7sQ.UB38CfSBpYgbRqTFhi1pE_OX8SY"
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
@@ -21,6 +26,40 @@ def get_json(url):
 @bot.command(pass_context=True)
 async def ping(ctx):
     await bot.send_message(ctx.message.channel, "Pong!")
+
+
+@bot.command(name="help", aliases="h", pass_context=True)
+async def get_help(ctx):
+    args = ctx.message.content.lower().split(" ")
+
+    if len(args) == 1:
+        help_embed = discord.Embed(
+            colour=discord.Colour.blue()
+        )
+
+        help_embed.set_footer(text="do \"!help <command name>\" for more information on a command.")
+        help_embed.set_author(name="Help", icon_url="https://media.discordapp.net/attachments/495315775423381518/499487940414537728/confirmation_verification-512.png")
+        help_embed.add_field(name="!help", value="Shows this message", inline=False)
+        help_embed.add_field(name="!queue !q", value="Shows the current amount of replays in the queue.", inline=False)
+        help_embed.add_field(name="!stats <id>", value="Shows the stats for the given id.", inline=False)
+        help_embed.add_field(name="!id <username>", value="Gives the Calulated.gg id for the username.")
+
+        await bot.send_message(ctx.message.channel, embed=help_embed)
+
+    elif args[1] == "stats":
+        stats_help_embed = discord.Embed(
+            description="!stats <id>",
+            colour=discord.Colour.blue()
+        )
+
+        stats_help_embed.set_footer(text="Note: alle parameters can have mixed up upper-/lowercase letters, and the bot will still recognize it.")
+        stats_help_embed.set_author(name="Stats", icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+        stats_help_embed.add_field(name="Descrition", value="Shows the stats for the given id.", inline=False)
+        stats_help_embed.add_field(name="Parameters", value="!stats takes in the following parameters: `id`", inline=False)
+        stats_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with !id)"
+                                                             "\n The players username, more succesful if you use the id instead of the username.")
+
+        await bot.send_message(ctx.message.channel, embed=stats_help_embed)
 
 
 @bot.command(name="queue", aliases="q", pass_context=True)
@@ -49,66 +88,51 @@ async def display_full_queue():
     await bot.say(embed=embed)
 
 
-@bot.command(pass_context=True)
-async def stats(ctx):
+@bot.command(name="stats", pass_context=True)
+async def get_stats(ctx):
     args = ctx.message.content.split(" ")
 
-    response_id = get_json("https://calculated.gg/api/player/{}".format(args[1]))
-    id = response_id
+    idurl = "https://calculated.gg/api/player/{}".format(args[1])
+    responseID = requests.get(idurl)
+    id = responseID.json()
 
-    response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
+    urlStats = "https://calculated.gg/api/player/{}/profile_stats".format(id)
+    responseStats = requests.get(urlStats)
 
-    car_name = response_stats["car"]["carName"]
-    car_percentage = str(round(response_stats["car"]["carPercentage"] * 100, 1)) + "%"
+    carName = responseStats.json()["car"]["carName"]
+    carPercantage = str(round(responseStats.json()["car"]["carPercentage"] * 100, 1)) + "%"
 
-    response_profile = get_json("https://calculated.gg/api/player/{}/profile".format(id))
+    urlProfile = "https://calculated.gg/api/player/{}/profile".format(id)
+    responseProfile = requests.get(urlProfile)
 
-    avatar_link = response_profile["avatarLink"]
-    avatar_name = response_profile["name"]
-    platform = response_profile["platform"]
-    past_names = response_profile["pastNames"]
+    avatarLink = responseProfile.json()["avatarLink"]
+    authorName = responseProfile.json()["name"]
+    pastNames = responseProfile.json()["pastNames"]
 
-    list_past_names = ""
-    for x in past_names:
-        list_past_names = list_past_names + x + "\n"
+    list_pastNames = ""
+    for x in pastNames:
+        list_pastNames = list_pastNames + x + "\n"
 
-    if platform == "Steam":
-        platform_url = "https://cdn.discordapp.com/attachments/317990830331658240/498493530402979842/latest.png"
-    else:
-        platform_url = ""
     stats_embed = discord.Embed(
         color=discord.Color.blue()
     )
 
-    stats_embed.set_author(name=avatar_name, url="https://calculated.gg/players/{}/overview".format(id),
-                           icon_url=platform_url)
-    stats_embed.set_thumbnail(url=avatar_link)
-    stats_embed.add_field(name="Favourite car", value=car_name + " (" + car_percentage + ")")
-    stats_embed.add_field(name="Past names", value=list_past_names)
+    stats_embed.set_author(name=authorName, url="https://calculated.gg/players/{}/overview".format(id),
+                           icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+    stats_embed.set_thumbnail(url=avatarLink)
+    stats_embed.add_field(name="Favourite car", value=carName + " (" + carPercantage + ")")
+    stats_embed.add_field(name="Past names", value=list_pastNames)
 
     await bot.send_message(ctx.message.channel, embed=stats_embed)
 
 
-@bot.command(pass_context=True)
-async def id(ctx):
+@bot.command(name="id",pass_context=True)
+async def get_id(ctx):
     args = ctx.message.content.split(" ")
     idurl = "https://calculated.gg/api/player/{}".format(args[1])
     responseID = get_json(idurl)
 
     await bot.send_message(ctx.message.channel, "Your Calculated ID is " + responseID)
-
-
-@bot.command(name="help", aliases="h", pass_context=True)
-async def get_help(ctx):
-    embed = discord.Embed(
-        colour=discord.Colour.blue()
-    )
-
-    embed.set_author(name="Help")
-    embed.add_field(name="!help", value="Shows this message", inline=False)
-    embed.add_field(name="!queue !q", value="Shows the current amount of replays in the queue.", inline=False)
-
-    await bot.send_message(ctx.message.channel, embed=embed)
 
 
 @bot.event
