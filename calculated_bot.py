@@ -4,16 +4,13 @@ import discord
 import requests
 from discord.ext.commands import Bot
 
-'''
+
 try:
     from config import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
-'''
 
-BOT_PREFIX = "!"
-TOKEN = "NDk3NDIxNjY1MjUzMTk1Nzg3.Dpe7sQ.UB38CfSBpYgbRqTFhi1pE_OX8SY"
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
