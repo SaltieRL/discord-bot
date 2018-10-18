@@ -58,7 +58,7 @@ async def get_help(ctx):
 
         await bot.send_message(ctx.message.channel, embed=stats_help_embed)
     else:
-        await bot.send_message(ctx.message.channel, "Command does not seem to exist, please try again.")
+        await bot.send_message(ctx.message.channel, "Command does not seem to exist, or the command does not have any additional information. Please try again.")
 
 
 @bot.command(name="queue", aliases="q", pass_context=True)
@@ -78,10 +78,11 @@ async def display_full_queue():
         description=say,
         colour=discord.Colour.blue()
     )
-    names = ['Internal', 'Priority', 'Public', 'Reparsing']
-    for index, queue_priority in enumerate([0, 3, 6, 9]):
-        msg = str(response["priority " + str(queue_priority)])
-        embed.add_field(name=names[index], value=msg,
+
+
+    for priority in response:
+        msg = str(priority["count"])
+        embed.add_field(name=str(priority["name"]), value=msg,
                         inline=True)
 
     await bot.say(embed=embed)
