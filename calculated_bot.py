@@ -57,6 +57,8 @@ async def get_help(ctx):
                                                              "\n The players username, more succesful if you use the id instead of the username.")
 
         await bot.send_message(ctx.message.channel, embed=stats_help_embed)
+    else:
+        await bot.send_message(ctx.message.channel, "Command does not seem to exist, please try again.")
 
 
 @bot.command(name="queue", aliases="q", pass_context=True)
