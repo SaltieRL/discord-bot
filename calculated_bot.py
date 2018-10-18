@@ -64,7 +64,7 @@ async def get_help(ctx):
 @bot.command(name="queue", aliases="q", pass_context=True)
 async def display_queue(ctx):
     response = get_json("https://calculated.gg/api/global/queue/count")
-    await bot.send_message(ctx.message.channel, str(response['priority 3']) + ' replays in the queue.')
+    await bot.send_message(ctx.message.channel, str(response[2]["count"]) + ' replays in the queue.')
 
 
 @bot.command(name="fullqueue")
