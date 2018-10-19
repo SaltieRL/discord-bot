@@ -19,16 +19,17 @@ bot.remove_command("help")
 def get_json(url):
     return requests.get(url).json()
 
-
+# ping command
 @bot.command(pass_context=True)
 async def ping(ctx):
     await bot.send_message(ctx.message.channel, "Pong!")
 
-
+#help command
 @bot.command(name="help", aliases="h", pass_context=True)
 async def get_help(ctx):
     args = ctx.message.content.lower().split(" ")
 
+    # if the message only contains the !help, send the help_embed
     if len(args) == 1:
         help_embed = discord.Embed(
             colour=discord.Colour.blue()
@@ -43,6 +44,7 @@ async def get_help(ctx):
 
         await bot.send_message(ctx.message.channel, embed=help_embed)
 
+    # otherwise if the first argument is "stats", send the stats_help_embed
     elif args[1] == "stats":
         stats_help_embed = discord.Embed(
             description="!stats <id>",
@@ -57,16 +59,20 @@ async def get_help(ctx):
                                                              "\n The players username, more succesful if you use the id instead of the username.")
 
         await bot.send_message(ctx.message.channel, embed=stats_help_embed)
+
+    # if the arguments does not match any embed, send an error message
     else:
         await bot.send_message(ctx.message.channel, "Command does not seem to exist, or the command does not have any additional information. Please try again.")
 
 
+# queue command
 @bot.command(name="queue", aliases="q", pass_context=True)
 async def display_queue(ctx):
     response = get_json("https://calculated.gg/api/global/queue/count")
     await bot.send_message(ctx.message.channel, str(response[2]["count"]) + ' replays in the queue.')
 
 
+# fullqueue command
 @bot.command(name="fullqueue")
 async def display_full_queue():
     response = get_json("https://calculated.gg/api/global/queue/count")
@@ -79,7 +85,6 @@ async def display_full_queue():
         colour=discord.Colour.blue()
     )
 
-
     for priority in response:
         msg = str(priority["count"])
         embed.add_field(name=str(priority["name"]), value=msg,
@@ -87,15 +92,17 @@ async def display_full_queue():
 
     await bot.say(embed=embed)
 
-
+# stats command
 @bot.command(name="stats", pass_context=True)
 async def get_stats(ctx):
     args = ctx.message.content.split(" ")
 
+    # fetches the ID for the given username
     idurl = "https://calculated.gg/api/player/{}".format(args[1])
     responseID = requests.get(idurl)
     id = responseID.json()
 
+    # fetches the stats for the ID
     urlStats = "https://calculated.gg/api/player/{}/profile_stats".format(id)
     responseStats = requests.get(urlStats)
 
@@ -113,6 +120,7 @@ async def get_stats(ctx):
     for x in pastNames:
         list_pastNames = list_pastNames + x + "\n"
 
+    # creates stats_embed
     stats_embed = discord.Embed(
         color=discord.Color.blue()
     )
@@ -126,6 +134,7 @@ async def get_stats(ctx):
     await bot.send_message(ctx.message.channel, embed=stats_embed)
 
 
+# id command
 @bot.command(name="id",pass_context=True)
 async def get_id(ctx):
     args = ctx.message.content.split(" ")
@@ -135,6 +144,7 @@ async def get_id(ctx):
     await bot.send_message(ctx.message.channel, "Your Calculated ID is " + responseID)
 
 
+# when bot user is ready, prints "READY"
 @bot.event
 async def on_ready():
     print('READY')
