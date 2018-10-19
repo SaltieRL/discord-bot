@@ -99,13 +99,11 @@ async def get_stats(ctx):
 
 
     # fetches the ID for the given username
-    idurl = "https://calculated.gg/api/player/{}".format(args[1])
-    responseID = requests.get(idurl)
-    id = responseID.json()
+    response_id = get_json("https://calculated.gg/api/player/{}".format(args[1]))
+    id = response_id
 
     # fetches the stats for the ID
-    urlStats = "https://calculated.gg/api/player/{}/profile_stats".format(id)
-    responseStats = requests.get(urlStats)
+    responseStats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
 
     response_id = get_json("https://calculated.gg/api/player/{}".format(args[1]))
     id = response_id
