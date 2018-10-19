@@ -97,7 +97,7 @@ async def display_full_queue():
 async def get_stats(ctx):
     args = ctx.message.content.split(" ")
 
-<<<<<<< HEAD
+
     # fetches the ID for the given username
     idurl = "https://calculated.gg/api/player/{}".format(args[1])
     responseID = requests.get(idurl)
@@ -106,12 +106,12 @@ async def get_stats(ctx):
     # fetches the stats for the ID
     urlStats = "https://calculated.gg/api/player/{}/profile_stats".format(id)
     responseStats = requests.get(urlStats)
-=======
+
     response_id = get_json("https://calculated.gg/api/player/{}".format(args[1]))
     id = response_id
 
     response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
->>>>>>> 8c50c918e3b517097cc1233d8d00c809738f301a
+
 
     car_name = response_stats["car"]["carName"]
     car_percentage = str(round(response_stats["car"]["carPercentage"] * 100, 1)) + "%"
@@ -127,14 +127,14 @@ async def get_stats(ctx):
     for x in past_names:
         list_past_names = list_past_names + x + "\n"
 
-<<<<<<< HEAD
+
     # creates stats_embed
-=======
+
     if platform == "Steam":
         platform_url = "https://cdn.discordapp.com/attachments/317990830331658240/498493530402979842/latest.png"
     else:
         platform_url = ""
->>>>>>> 8c50c918e3b517097cc1233d8d00c809738f301a
+
     stats_embed = discord.Embed(
         color=discord.Color.blue()
     )
