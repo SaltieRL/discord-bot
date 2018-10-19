@@ -4,13 +4,11 @@ import discord
 import requests
 from discord.ext.commands import Bot
 
-
 try:
     from config import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
-
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
@@ -19,12 +17,20 @@ bot.remove_command("help")
 def get_json(url):
     return requests.get(url).json()
 
+
+def resolve_custom_url(url):
+    # fetches the ID for the given username
+    response_id = get_json("https://calculated.gg/api/player/{}".format(url))
+    return response_id
+
+
 # ping command
 @bot.command(pass_context=True)
 async def ping(ctx):
     await bot.send_message(ctx.message.channel, "Pong!")
 
-#help command
+
+# help command
 @bot.command(name="help", aliases="h", pass_context=True)
 async def get_help(ctx):
     args = ctx.message.content.lower().split(" ")
@@ -36,7 +42,8 @@ async def get_help(ctx):
         )
 
         help_embed.set_footer(text="do \"!help <command name>\" for more information on a command.")
-        help_embed.set_author(name="Help", icon_url="https://media.discordapp.net/attachments/495315775423381518/499487940414537728/confirmation_verification-512.png")
+        help_embed.set_author(name="Help",
+                              icon_url="https://media.discordapp.net/attachments/495315775423381518/499487940414537728/confirmation_verification-512.png")
         help_embed.add_field(name="!help", value="Shows this message", inline=False)
         help_embed.add_field(name="!queue !q", value="Shows the current amount of replays in the queue.", inline=False)
         help_embed.add_field(name="!stats <id>", value="Shows the stats for the given id.", inline=False)
@@ -51,10 +58,13 @@ async def get_help(ctx):
             colour=discord.Colour.blue()
         )
 
-        stats_help_embed.set_footer(text="Note: alle parameters can have mixed up upper-/lowercase letters, and the bot will still recognize it.")
-        stats_help_embed.set_author(name="Stats", icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+        stats_help_embed.set_footer(
+            text="Note: alle parameters can have mixed up upper-/lowercase letters, and the bot will still recognize it.")
+        stats_help_embed.set_author(name="Stats",
+                                    icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
         stats_help_embed.add_field(name="Descrition", value="Shows the stats for the given id.", inline=False)
-        stats_help_embed.add_field(name="Parameters", value="!stats takes in the following parameters: `id`", inline=False)
+        stats_help_embed.add_field(name="Parameters", value="!stats takes in the following parameters: `id`",
+                                   inline=False)
         stats_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with !id)"
                                                              "\n The players username, more succesful if you use the id instead of the username.")
 
@@ -62,7 +72,8 @@ async def get_help(ctx):
 
     # if the arguments does not match any embed, send an error message
     else:
-        await bot.send_message(ctx.message.channel, "Command does not seem to exist, or the command does not have any additional information. Please try again.")
+        await bot.send_message(ctx.message.channel,
+                               "Command does not seem to exist, or the command does not have any additional information. Please try again.")
 
 
 # queue command
@@ -92,23 +103,8 @@ async def display_full_queue():
 
     await bot.say(embed=embed)
 
-# stats command
-@bot.command(name="stats", pass_context=True)
-async def get_stats(ctx):
-    args = ctx.message.content.split(" ")
 
-
-    # fetches the ID for the given username
-    response_id = get_json("https://calculated.gg/api/player/{}".format(args[1]))
-    id = response_id
-
-    # fetches the stats for the ID
-    response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
-
-
-    car_name = response_stats["car"]["carName"]
-    car_percentage = str(round(response_stats["car"]["carPercentage"] * 100, 1)) + "%"
-
+def get_player_profile(id):
     response_profile = get_json("https://calculated.gg/api/player/{}/profile".format(id))
 
     avatar_link = response_profile["avatarLink"]
@@ -116,10 +112,25 @@ async def get_stats(ctx):
     platform = response_profile["platform"]
     past_names = response_profile["pastNames"]
 
+    return avatar_link, avatar_name, platform, past_names
+
+
+# stats command
+@bot.command(name="stats", pass_context=True)
+async def get_stats(ctx):
+    args = ctx.message.content.split(" ")
+    id = resolve_custom_url(args[1])
+
+    # fetches the stats for the ID
+    response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
+
+    car_name = response_stats["car"]["carName"]
+    car_percentage = str(round(response_stats["car"]["carPercentage"] * 100, 1)) + "%"
+    avatar_link, avatar_name, platform, past_names = get_player_profile(id)
+
     list_past_names = ""
     for x in past_names:
         list_past_names = list_past_names + x + "\n"
-
 
     # creates stats_embed
 
@@ -141,8 +152,30 @@ async def get_stats(ctx):
     await bot.send_message(ctx.message.channel, embed=stats_embed)
 
 
+@bot.command(name="ranks", aliases="rank", pass_context=True)
+async def get_rank(ctx):
+    args = ctx.message.content.split(" ")
+    id = resolve_custom_url(args[1])
+
+    avatar_link, avatar_name, platform, past_names = get_player_profile(id)
+
+    ranks = get_json("https://calculated.gg/api/player/{}/ranks".format(id))
+    stats_embed = discord.Embed(
+        color=discord.Color.blue()
+    )
+
+    stats_embed.set_author(name=avatar_name, url="https://calculated.gg/players/{}/overview".format(id),
+                           icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+    stats_embed.set_thumbnail(url=avatar_link)
+    order = ['duel', 'doubles', 'solo', 'standard', 'hoops', 'rumble', 'dropshot', 'snowday']
+    for playlist in order:
+        stats_embed.add_field(name=playlist.title(), value=ranks[playlist]['name'])
+
+    await bot.send_message(ctx.message.channel, embed=stats_embed)
+
+
 # id command
-@bot.command(name="id",pass_context=True)
+@bot.command(name="id", pass_context=True)
 async def get_id(ctx):
     args = ctx.message.content.split(" ")
     idurl = "https://calculated.gg/api/player/{}".format(args[1])
