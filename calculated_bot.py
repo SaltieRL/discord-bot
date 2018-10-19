@@ -23,7 +23,10 @@ def resolve_custom_url(url):
     response_id = get_json("https://calculated.gg/api/player/{}".format(url))
     return response_id
 
-
+def chunks(l, n):
+    """Yield successive n-sized chunks from l."""
+    for i in range(0, len(l), n):
+        yield l[i:i + n]
 # ping command
 @bot.command(pass_context=True)
 async def ping(ctx):
@@ -69,7 +72,17 @@ async def get_help(ctx):
                                                              "\n The players username, more succesful if you use the id instead of the username.")
 
         await bot.send_message(ctx.message.channel, embed=stats_help_embed)
+    elif args[1] == "stat":
 
+        stats = get_json("https://calculated.gg/api/player/76561198055442516/play_style/all")['dataPoints']
+        stats_list = [s['name'].replace(' ', '\_') for s in stats]
+        stats_help_embed = discord.Embed(
+            description="!stat <stat> <ids...>",
+            colour=discord.Colour.blue()
+        )
+        for i, l in enumerate(chunks(stats_list, 25)):
+            stats_help_embed.add_field(name='Stats ' + str(i + 1), value=", ".join(l))
+        await bot.send_message(ctx.message.channel, embed=stats_help_embed)
     # if the arguments does not match any embed, send an error message
     else:
         await bot.send_message(ctx.message.channel,
@@ -172,6 +185,38 @@ async def get_rank(ctx):
         stats_embed.add_field(name=playlist.title(), value=ranks[playlist]['name'])
 
     await bot.send_message(ctx.message.channel, embed=stats_embed)
+
+
+@bot.command(name="stat", aliases="s", pass_context=True)
+async def get_rank(ctx):
+    args = ctx.message.content.split(" ")
+    stat = args[1].replace('_', ' ')
+    ids_maybe = args[2:]
+    if len(ids_maybe) == 1:
+        id = resolve_custom_url(ids_maybe[0])
+        stats = get_json("https://calculated.gg/api/player/{}/play_style/all".format(id))['dataPoints']
+        print(stats)
+        matches = [s for s in stats if s['name'] == stat]
+        if len(matches) == 0:
+            await bot.send_message(ctx.message.channel, "Could not find stat: {}".format(stat))
+            return
+
+        await bot.send_message(ctx.message.channel, str(matches[0]['average']))
+    else:
+        stats_embed = discord.Embed(
+            color=discord.Color.blue()
+        )
+        stats_embed.set_author(name=stat,
+                               icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+        for name in ids_maybe:
+            id = resolve_custom_url(name)
+            stats = get_json("https://calculated.gg/api/player/{}/play_style/all".format(id))['dataPoints']
+            matches = [s for s in stats if s['name'] == stat]
+            if len(matches) == 0:
+                await bot.send_message(ctx.message.channel, "Could not find stat: {}".format(stat))
+                return
+            stats_embed.add_field(name=name, value=matches[0]['average'])
+        await bot.send_message(ctx.message.channel, embed=stats_embed)
 
 
 # id command
