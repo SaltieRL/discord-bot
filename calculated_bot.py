@@ -190,12 +190,14 @@ async def get_rank(ctx):
 @bot.command(name="stat", aliases="s", pass_context=True)
 async def get_rank(ctx):
     args = ctx.message.content.split(" ")
+    if len(args) < 3:
+        await bot.send_message(ctx.message.channel, 'Not enough arguments!')
+        return
     stat = args[1].replace('_', ' ')
     ids_maybe = args[2:]
     if len(ids_maybe) == 1:
         id = resolve_custom_url(ids_maybe[0])
         stats = get_json("https://calculated.gg/api/player/{}/play_style/all".format(id))['dataPoints']
-        print(stats)
         matches = [s for s in stats if s['name'] == stat]
         if len(matches) == 0:
             await bot.send_message(ctx.message.channel, "Could not find stat: {}".format(stat))
