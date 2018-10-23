@@ -4,11 +4,13 @@ import discord
 import requests
 from discord.ext.commands import Bot
 
+
 try:
     from config import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
+
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
@@ -225,6 +227,45 @@ async def get_stat(ctx):
                 return
             stats_embed.add_field(name=name, value=matches[0]['average'])
         await bot.send_message(ctx.message.channel, embed=stats_embed)
+
+
+@bot.command(name="replays", pass_context=True)
+async def get_replays(ctx):
+    args = ctx.message.content.split(" ")
+    if len(args) < 3:
+        await bot.send_message(ctx.message.channel, "Not enough arguments!")
+        return
+
+    replays_count = args[1]
+    user = get_user_id(args[2])
+    url = "https://calculated.gg/api/player/{}/match_history?page=0&limit={}".format(user, replays_count)
+    user_name = get_player_profile(user)[1]
+
+
+    replays = {}
+    response_replays = get_json(url)
+    user_replay_count = response_replays["totalCount"]
+    all_replay_info = response_replays["replays"]
+
+    replay_name = 1
+    for replay in all_replay_info:
+        replays[str(replay_name)] = [replay["id"], replay["date"]]
+        replay_name += 1
+
+
+    replays_embed = discord.Embed(
+        title="Replays",
+        color=discord.Color.blue()
+    )
+
+    footer = user_name + " has " + str(user_replay_count) + " replays."
+    replays_embed.set_footer(text=footer)
+
+    for x in replays_count:
+        replays_embed.add_field(name="ID: " + str(replays[x]), value="Date of replay: " + str(replays[x]))
+
+    await bot.send_message(ctx.message.channel, embed=replays_embed)
+
 
 
 # id command
