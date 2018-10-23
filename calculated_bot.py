@@ -129,8 +129,8 @@ def get_player_profile(id):
 
 
 # stats command
-@bot.command(name="stats", pass_context=True)
-async def get_stats(ctx):
+@bot.command(name="profile", aliases="p", pass_context=True)
+async def get_profile(ctx):
     args = ctx.message.content.split(" ")
     id = resolve_custom_url(args[1])
 
@@ -188,7 +188,7 @@ async def get_rank(ctx):
 
 
 @bot.command(name="stat", aliases="s", pass_context=True)
-async def get_rank(ctx):
+async def get_stat(ctx):
     args = ctx.message.content.split(" ")
     if len(args) < 3:
         await bot.send_message(ctx.message.channel, 'Not enough arguments!')
