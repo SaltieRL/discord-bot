@@ -18,6 +18,12 @@ def get_json(url):
     return requests.get(url).json()
 
 
+def get_user_id(user):
+    url = "https://calculated.gg/api/player/{}".format(user)
+    id = get_json(url)
+    return id
+
+
 def resolve_custom_url(url):
     # fetches the ID for the given username
     response_id = get_json("https://calculated.gg/api/player/{}".format(url))
@@ -225,10 +231,9 @@ async def get_stat(ctx):
 @bot.command(name="id", pass_context=True)
 async def get_id(ctx):
     args = ctx.message.content.split(" ")
-    idurl = "https://calculated.gg/api/player/{}".format(args[1])
-    responseID = get_json(idurl)
+    user_id = get_user_id(args[1])
 
-    await bot.send_message(ctx.message.channel, "Your Calculated ID is " + responseID)
+    await bot.send_message(ctx.message.channel, "Your id is: " + user_id)
 
 
 # when bot user is ready, prints "READY"
