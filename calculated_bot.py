@@ -75,13 +75,13 @@ async def get_help(ctx):
                               icon_url="https://media.discordapp.net/attachments/495315775423381518/499487940414537728/confirmation_verification-512.png")
         help_embed.add_field(name="!help", value="Shows this message", inline=False)
         help_embed.add_field(name="!queue !q", value="Shows the current amount of replays in the queue.", inline=False)
-        help_embed.add_field(name="!stats <id>", value="Shows the stats for the given id.", inline=False)
+        help_embed.add_field(name="!profile <id>", value="Shows the profile for the given id.", inline=False)
         help_embed.add_field(name="!id <username>", value="Gives the Calulated.gg id for the username.")
 
         await bot.send_message(ctx.message.channel, embed=help_embed)
 
     # otherwise if the first argument is "stats", send the stats_help_embed
-    elif args[1] == "stats":
+    elif args[1] == "profile":
         stats_help_embed = discord.Embed(
             description="!stats <id>",
             colour=discord.Colour.blue()
@@ -89,10 +89,10 @@ async def get_help(ctx):
 
         stats_help_embed.set_footer(
             text="Note: alle parameters can have mixed up upper-/lowercase letters, and the bot will still recognize it.")
-        stats_help_embed.set_author(name="Stats",
+        stats_help_embed.set_author(name="Profile",
                                     icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
-        stats_help_embed.add_field(name="Descrition", value="Shows the stats for the given id.", inline=False)
-        stats_help_embed.add_field(name="Parameters", value="!stats takes in the following parameters: `id`",
+        stats_help_embed.add_field(name="Descrition", value="Shows the profile for the given id.", inline=False)
+        stats_help_embed.add_field(name="Parameters", value="!profile takes in the following parameters: `id`",
                                    inline=False)
         stats_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with !id)"
                                                              "\n The players username, more succesful if you use the id instead of the username.")
@@ -141,7 +141,7 @@ async def display_full_queue():
                         inline=True)
 
     await bot.say(embed=embed)
-6
+
 
 # stats command
 @bot.command(name="profile", aliases="p", pass_context=True)
