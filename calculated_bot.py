@@ -5,13 +5,16 @@ import sys
 import discord
 import requests
 from discord.ext.commands import Bot
-
+'''
 try:
     from config import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
+'''
 
+BOT_PREFIX = "!"
+TOKEN = "NDk3NDIxNjY1MjUzMTk1Nzg3.Dqovmg.OumYV7-ASHRrU-65yiH7t6B1xHc"
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
 
@@ -77,20 +80,22 @@ async def get_help(ctx):
         help_embed.add_field(name="!queue !q", value="Shows the current amount of replays in the queue.", inline=False)
         help_embed.add_field(name="!profile <id>", value="Shows the profile for the given id.", inline=False)
         help_embed.add_field(name="!id <username>", value="Gives the Calulated.gg id for the username.")
+        help_embed.add_field(name="!stat <stat> <ids..>", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included")
+        help_embed.add_field(name="!replays <id> <amount>", value="Sends link to the latest amount of replays for the given id.")
 
         await bot.send_message(ctx.message.channel, embed=help_embed)
 
     # otherwise if the first argument is "stats", send the stats_help_embed
     elif args[1] == "profile":
         stats_help_embed = discord.Embed(
-            description="!stats <id>",
+            description="!profile <id>",
             colour=discord.Colour.blue()
         )
 
         stats_help_embed.set_footer(
             text="Note: alle parameters can have mixed up upper-/lowercase letters, and the bot will still recognize it.")
         stats_help_embed.set_author(name="Profile",
-                                    icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+                                    icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504677577722691598/person_1058425.png")
         stats_help_embed.add_field(name="Descrition", value="Shows the profile for the given id.", inline=False)
         stats_help_embed.add_field(name="Parameters", value="!profile takes in the following parameters: `id`",
                                    inline=False)
@@ -106,9 +111,30 @@ async def get_help(ctx):
             description="!stat <stat> <ids...>",
             colour=discord.Colour.blue()
         )
+
+        stats_help_embed.set_author(name="Stat", icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+        stats_help_embed.add_field(name="Description", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
+        stats_help_embed.add_field(name="Parameters", value="!stat takes the following parameters: `stat` and `ids..`", inline=False)
+        stats_help_embed.add_field(name="ids.. accepts:", value="1 or more Calculated.gg IDs, can be found with !id", inline=False)
+
+
+
         for i, l in enumerate(chunks(stats_list, 25)):
             stats_help_embed.add_field(name='Stats ' + str(i + 1), value=", ".join(l))
         await bot.send_message(ctx.message.channel, embed=stats_help_embed)
+    elif args[1] == "replays":
+        replays_help_embed = discord.Embed(
+            description="!replays <id> <amount>",
+            colour=discord.Colour.blue()
+        )
+        replays_help_embed.set_author(name="Replays", icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504675168640172032/495386-200.png")
+        replays_help_embed.add_field(name="Description", value="Sends link to the latest amount of replays for the given id.", inline=False)
+        replays_help_embed.add_field(name="Parameters", value="!replays takes the following parameters: `id` and `amount`", inline=False)
+        replays_help_embed.add_field(name="id accepts: ", value="The Calculated.gg id of a user (can be found with !id)", inline=False)
+        replays_help_embed.add_field(name="amount accepts: ", value="an integer between 1 and 10", inline=False)
+
+        await bot.send_message(ctx.message.channel, embed=replays_help_embed)
+
     # if the arguments does not match any embed, send an error message
     else:
         await bot.send_message(ctx.message.channel,
