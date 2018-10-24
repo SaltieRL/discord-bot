@@ -30,6 +30,17 @@ def get_user_id(user):
     return id
 
 
+def get_player_profile(id):
+    response_profile = get_json("https://calculated.gg/api/player/{}/profile".format(id))
+
+    avatar_link = response_profile["avatarLink"]
+    avatar_name = response_profile["name"]
+    platform = response_profile["platform"]
+    past_names = response_profile["pastNames"]
+
+    return avatar_link, avatar_name, platform, past_names
+
+
 def resolve_custom_url(url):
     # fetches the ID for the given username
     response_id = get_json("https://calculated.gg/api/player/{}".format(url))
@@ -130,18 +141,7 @@ async def display_full_queue():
                         inline=True)
 
     await bot.say(embed=embed)
-
-
-def get_player_profile(id):
-    response_profile = get_json("https://calculated.gg/api/player/{}/profile".format(id))
-
-    avatar_link = response_profile["avatarLink"]
-    avatar_name = response_profile["name"]
-    platform = response_profile["platform"]
-    past_names = response_profile["pastNames"]
-
-    return avatar_link, avatar_name, platform, past_names
-
+6
 
 # stats command
 @bot.command(name="profile", aliases="p", pass_context=True)
