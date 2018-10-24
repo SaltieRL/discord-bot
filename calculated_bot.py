@@ -1,9 +1,10 @@
+import datetime
+import json
 import sys
 
 import discord
 import requests
 from discord.ext.commands import Bot
-
 
 try:
     from config import TOKEN, BOT_PREFIX
@@ -11,13 +12,16 @@ except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
 
-
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
 
 
 def get_json(url):
-    return requests.get(url).json()
+    try:
+        return requests.get(url).json()
+    except json.decoder.JSONDecodeError as e:
+        print("Error decoding JSON for url:", url)
+        raise e
 
 
 def get_user_id(user):
@@ -31,10 +35,13 @@ def resolve_custom_url(url):
     response_id = get_json("https://calculated.gg/api/player/{}".format(url))
     return response_id
 
+
 def chunks(l, n):
     """Yield successive n-sized chunks from l."""
     for i in range(0, len(l), n):
         yield l[i:i + n]
+
+
 # ping command
 @bot.command(pass_context=True)
 async def ping(ctx):
@@ -220,12 +227,13 @@ async def get_stat(ctx):
                                icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
         for name in ids_maybe:
             id = resolve_custom_url(name)
+            name = get_player_profile(id)[1] + "   "
             stats = get_json("https://calculated.gg/api/player/{}/play_style/all".format(id))['dataPoints']
             matches = [s for s in stats if s['name'] == stat]
             if len(matches) == 0:
                 await bot.send_message(ctx.message.channel, "Could not find stat: {}".format(stat))
                 return
-            stats_embed.add_field(name=name, value=matches[0]['average'])
+            stats_embed.add_field(name=name, value=matches[0]['average'], inline=False)
         await bot.send_message(ctx.message.channel, embed=stats_embed)
 
 
@@ -236,22 +244,16 @@ async def get_replays(ctx):
         await bot.send_message(ctx.message.channel, "Not enough arguments!")
         return
 
-    replays_count = args[1]
-    user = get_user_id(args[2])
+    replays_count = int(args[2])
+    if replays_count > 10:
+        replays_count = 10
+    user = get_user_id(args[1])
     url = "https://calculated.gg/api/player/{}/match_history?page=0&limit={}".format(user, replays_count)
     user_name = get_player_profile(user)[1]
 
-
-    replays = {}
     response_replays = get_json(url)
     user_replay_count = response_replays["totalCount"]
     all_replay_info = response_replays["replays"]
-
-    replay_name = 1
-    for replay in all_replay_info:
-        replays[str(replay_name)] = [replay["id"], replay["date"]]
-        replay_name += 1
-
 
     replays_embed = discord.Embed(
         title="Replays",
@@ -261,11 +263,28 @@ async def get_replays(ctx):
     footer = user_name + " has " + str(user_replay_count) + " replays."
     replays_embed.set_footer(text=footer)
 
-    for x in replays_count:
-        replays_embed.add_field(name="ID: " + str(replays[x]), value="Date of replay: " + str(replays[x]))
+    for replay in all_replay_info[:int(replays_count)]:
+        date_str = replay['date']
+        date_obj = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
+        date_str = date_obj.strftime("%A, %b %d, %Y %I:%M %p")
+
+        blue_wins = replay['gameScore']['team0Score'] > replay['gameScore']['team1Score']
+        blue_ids = [plr['id'] for plr in replay['players'] if plr['isOrange'] is False]
+        on_blue = (user in blue_ids)
+        win = not (blue_wins ^ on_blue)
+        lines = [
+            "Link: [{}]({})".format(replay['id'], "https://calculated.gg/replays/" + replay['id']),
+            "Score: " + ("**{}**-{}" if on_blue else "{}-**{}**").format(replay['gameScore']['team0Score'], replay['gameScore']['team1Score'])
+        ]
+        msg = ""
+        for line in lines:
+            msg += line + "\n"
+
+        replays_embed.add_field(
+            value=msg,
+            name="{}, {}, {}". format(replay['gameMode'], date_str, "Win" if win else "Loss"))
 
     await bot.send_message(ctx.message.channel, embed=replays_embed)
-
 
 
 # id command
