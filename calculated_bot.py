@@ -264,13 +264,17 @@ async def get_stat(ctx):
 @bot.command(name="replays", pass_context=True)
 async def get_replays(ctx):
     args = ctx.message.content.split(" ")
+    state = False
     if len(args) < 3:
         await bot.send_message(ctx.message.channel, "Not enough arguments!")
         return
 
     replays_count = int(args[2])
-    if replays_count > 10:
-        replays_count = 10
+    if replays_count > 9:
+        state = True
+        real_count = replays_count
+        replays_count = 9
+
     user = get_user_id(args[1])
     url = "https://calculated.gg/api/player/{}/match_history?page=0&limit={}".format(user, replays_count)
     user_name = get_player_profile(user)[1]
@@ -307,6 +311,11 @@ async def get_replays(ctx):
         replays_embed.add_field(
             value=msg,
             name="{}, {}, {}". format(replay['gameMode'], date_str, "Win" if win else "Loss"))
+
+    if state:
+        url = "https://calculated.gg/search/replays?page=0&limit={}&player_ids=".format(real_count)
+        link = "Link: [{}]({})".format("Rest of replays", url + user)
+        replays_embed.add_field(name="Rest of replays can be found here: ", value=link, inline=False)
 
     await bot.send_message(ctx.message.channel, embed=replays_embed)
 
