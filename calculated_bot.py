@@ -80,9 +80,10 @@ async def get_help(ctx):
         help_embed.add_field(name="!help", value="Shows this message", inline=False)
         help_embed.add_field(name="!queue !q", value="Shows the current amount of replays in the queue.", inline=False)
         help_embed.add_field(name="!profile <id>", value="Shows the profile for the given id.", inline=False)
-        help_embed.add_field(name="!id <username>", value="Gives the Calulated.gg id for the username.")
-        help_embed.add_field(name="!stat <stat> <ids..>", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included")
-        help_embed.add_field(name="!replays <id> <amount>", value="Sends link to the latest amount of replays for the given id.")
+        help_embed.add_field(name="!id <username>", value="Gives the Calulated.gg id for the username.", inline=False)
+        help_embed.add_field(name="!stat <stat> <ids..>", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
+        help_embed.add_field(name="!replays <id> <amount>", value="Sends link to the latest amount of replays for the given id.", inline=False)
+        help_embed.add_field(name="!explain <stat>", value="Gives an explanation for the the given stat", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=help_embed)
 
@@ -135,7 +136,21 @@ async def get_help(ctx):
         replays_help_embed.add_field(name="amount accepts: ", value="an integer between 1 and 10", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=replays_help_embed)
+    elif args[1] == "explain":
+        accepts = ""
+        for stat in explanations:
+            accepts = accepts + stat + ", "
 
+        explain_help_embed = discord.Embed(
+            description="!explain <stat>",
+            color=discord.Color.blue()
+        )
+        explain_help_embed.set_author(name="Explain", icon_url="https://media.discordapp.net/attachments/495315775423381518/499487940414537728/confirmation_verification-512.png")
+        explain_help_embed.add_field(name="Description", value="Gives an explanation for the the given stat", inline=False)
+        explain_help_embed.add_field(name="Parameters", value="!explain takes the following parameters: `stat`", inline=False)
+        explain_help_embed.add_field(name="stat accepts", value=accepts)
+
+        await bot.send_message(ctx.message.channel, embed=explain_help_embed)
     # if the arguments does not match any embed, send an error message
     else:
         await bot.send_message(ctx.message.channel,
