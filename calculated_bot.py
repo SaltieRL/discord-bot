@@ -8,16 +8,13 @@ import discord
 import requests
 from discord.ext.commands import Bot
 
-'''
+
 try:
     from config import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
-'''
 
-BOT_PREFIX = "!"
-TOKEN = "NDk3NDIxNjY1MjUzMTk1Nzg3.DrIjXA.6U0KRPZNz_izOKWYDAm8ubDIvy8"
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
@@ -324,6 +321,28 @@ async def get_replays(ctx):
         replays_embed.add_field(name="Rest of replays can be found here: ", value=link, inline=False)
 
     await bot.send_message(ctx.message.channel, embed=replays_embed)
+
+
+@bot.command(name="explain", aliases=["e", "ex", "expl"], pass_context=True)
+async def get_explanation(ctx):
+    args = ctx.message.content.split(" ")
+
+    stat = args[1]
+    try:
+        response = explanations[stat]
+    except KeyError:
+        await bot.send_message(ctx.message.channel, "Stat does not seem to exist, please try again.")
+        return
+
+    explanation = response[0]
+
+    explain_embed = discord.Embed(
+        color = discord.Color.blue(),
+        title=stat,
+        description=explanation
+    )
+
+    await bot.send_message(ctx.message.channel, embed=explain_embed)
 
 
 # id command
