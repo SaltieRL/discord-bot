@@ -5,6 +5,7 @@ explanations = {
     "total_aerials": ["Total number of aerials that took place this game", "General"],
     "total_dribbles": ["Total number of dribbles that took place in a game", "General"],
     "useful hits": ["Average distance the ball went after being hit before being touched by another player", "General"],
+    "'is_keyboard": ["If the player is using a keyboard.", "General"],
     "turnovers": ["When the opposite team hits the ball twice after you had hit it and therefore have lost possession", "Turnovers"],
     "turnovers_on_my_half": ["When a turnover occurs but on the defending half", "Turnovers"],
     "turnovers_on_their_half": ["When a turnover occurs but on the opponents half", "Turnovers"],
@@ -26,5 +27,19 @@ explanations = {
     "time_low_in_air": ["Time you spent above ground but below the max height of double jumping (roughly goal height)", "Tendencies"],
     "time_in_defending_half": ["Time the car is in your defending half", "Tendencies"],
     "time_in_attacking_half": ["Time the car is in your opponents half", "Tendencies"],
-    "time_in_defending_third": [""]
+    "time_in_defending_third": ["Time the car is in your defending third.", "Tendencies"],
+    "time_in_neutral_third": ["Time you spent in the midfield.", "Tendencies"],
+    "time_in_attacking_third": ["Time you spent in the enemy third of the field.", "Tendencies"],
+    "time_behind_ball": ["(< ball) Time you are between the ball and your own goal.'", "Tendencies"],
+    "time_in_font_of_ball": ["(> ball) Time you are between the ball and the enemy goal.", "Tendencies"],
+    "time_closest_to_ball": ["No one is closer to the ball than you.", "Tendencies"],
+    "time_furthest_from_ball": ["No one is further from the ball than you.", "Tendencies"],
+    "time_close_to_ball": ["This distance is equivalent to the width of the goal. It is essentially a ball chase timer.", "Tendencies"],
+    "time_closest_to_team_center": ["Time when a player is closest to the center of a team", "Tendencies"],
+    "time_furthest_from_team_center": ["Time when a player is furthest to the center of a team", "Tendencies"],
+    "ball_hit_forward": ["Summed distance of hits towards opponent goal.", "Distance"],
+    "ball_hit_backward": ["Summed distance of hits towards own goal.", "Distance"],
+    "time_at_boost_speed": ["Time at a speed only reachable by using boost (or dodges).", "Speed"],
+    "time_at_slow_speed": ["Half max car speed without boost.", "Speed"],
+    "time_at_super_sonic": ["time at max car speed. Trail is showing.", "Speed"]
 }
