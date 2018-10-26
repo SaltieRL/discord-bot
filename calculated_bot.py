@@ -87,7 +87,7 @@ async def get_help(ctx):
 
         await bot.send_message(ctx.message.channel, embed=help_embed)
 
-    # otherwise if the first argument is "stats", send the stats_help_embed
+    # otherwise if the first argument is "profile", send the stats_help_embed
     elif args[1] == "profile":
         stats_help_embed = discord.Embed(
             description="!profile <id>",
@@ -105,6 +105,7 @@ async def get_help(ctx):
                                                              "\n The players username, more succesful if you use the id instead of the username.")
 
         await bot.send_message(ctx.message.channel, embed=stats_help_embed)
+    # if first argument is stat send stats_help_embed
     elif args[1] == "stat":
 
         stats = get_json("https://calculated.gg/api/player/76561198055442516/play_style/all")['dataPoints']
@@ -124,6 +125,7 @@ async def get_help(ctx):
         for i, l in enumerate(chunks(stats_list, 25)):
             stats_help_embed.add_field(name='Stats ' + str(i + 1), value=", ".join(l))
         await bot.send_message(ctx.message.channel, embed=stats_help_embed)
+    # if first argument is replays send replays_help_embed
     elif args[1] == "replays":
         replays_help_embed = discord.Embed(
             description="!replays <id> <amount>",
@@ -136,6 +138,7 @@ async def get_help(ctx):
         replays_help_embed.add_field(name="amount accepts: ", value="an integer between 1 and 10", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=replays_help_embed)
+        # if first argument is explain send explain_help_embed
     elif args[1] == "explain":
         accepts = ""
         for stat in explanations:
@@ -202,13 +205,12 @@ async def get_profile(ctx):
     for x in past_names:
         list_past_names = list_past_names + x + "\n"
 
-    # creates stats_embed
-
     if platform == "Steam":
         platform_url = "https://cdn.discordapp.com/attachments/317990830331658240/498493530402979842/latest.png"
     else:
         platform_url = ""
 
+    # creates stats_embed
     stats_embed = discord.Embed(
         color=discord.Color.blue()
     )
@@ -219,17 +221,21 @@ async def get_profile(ctx):
     stats_embed.add_field(name="Favourite car", value=car_name + " (" + car_percentage + ")")
     stats_embed.add_field(name="Past names", value=list_past_names)
 
+    # send message
     await bot.send_message(ctx.message.channel, embed=stats_embed)
 
 
+# ranks command
 @bot.command(name="ranks", aliases="rank", pass_context=True)
 async def get_rank(ctx):
     args = ctx.message.content.split(" ")
     id = resolve_custom_url(args[1])
 
     avatar_link, avatar_name, platform, past_names = get_player_profile(id)
-
+    # get user's ranks
     ranks = get_json("https://calculated.gg/api/player/{}/ranks".format(id))
+
+    # creat embed
     stats_embed = discord.Embed(
         color=discord.Color.blue()
     )
@@ -241,34 +247,44 @@ async def get_rank(ctx):
     for playlist in order:
         stats_embed.add_field(name=playlist.title(), value=ranks[playlist]['name'])
 
+    # send embed
     await bot.send_message(ctx.message.channel, embed=stats_embed)
 
 
+# stat command
 @bot.command(name="stat", aliases="s", pass_context=True)
 async def get_stat(ctx):
     args = ctx.message.content.split(" ")
+    # responds if not enough arguments
     if len(args) < 3:
         await bot.send_message(ctx.message.channel, 'Not enough arguments!')
         return
     stat = args[1].replace('_', ' ')
     ids_maybe = args[2:]
+    # if only one id is given
     if len(ids_maybe) == 1:
         id = resolve_custom_url(ids_maybe[0])
         stats = get_json("https://calculated.gg/api/player/{}/play_style/all".format(id))['dataPoints']
         matches = [s for s in stats if s['name'] == stat]
+        # if stat does not match tell user so
         if len(matches) == 0:
             await bot.send_message(ctx.message.channel, "Could not find stat: {}".format(stat))
             return
 
         await bot.send_message(ctx.message.channel, str(matches[0]['average']))
+    # else if more ids are given
     else:
+        # create embed
         stats_embed = discord.Embed(
             color=discord.Color.blue()
         )
         stats_embed.set_author(name=stat,
                                icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+        # sets footer of embed to the explanation of the stat
         if args[1] in explanations:
             stats_embed.set_footer(text=explanations[args[1]][0])
+
+        # fields with the usernames as names and their stats as values
         for name in ids_maybe:
             id = resolve_custom_url(name)
             name = get_player_profile(id)[1] + "   "
@@ -278,31 +294,39 @@ async def get_stat(ctx):
                 await bot.send_message(ctx.message.channel, "Could not find stat: {}".format(stat))
                 return
             stats_embed.add_field(name=name, value=matches[0]['average'], inline=False)
+
+        # send embed
         await bot.send_message(ctx.message.channel, embed=stats_embed)
 
 
+# replays command
 @bot.command(name="replays", pass_context=True)
 async def get_replays(ctx):
     args = ctx.message.content.split(" ")
     state = False
+    # if there are too few arguments. tell the user so
     if len(args) < 3:
         await bot.send_message(ctx.message.channel, "Not enough arguments!")
         return
 
+    # check if there is too many replays requested
     replays_count = int(args[2])
-    if replays_count > 9:
+    if replays_count > 10:
         state = True
         real_count = replays_count
         replays_count = 9
 
+    # get the user's information and replays
     user = get_user_id(args[1])
     url = "https://calculated.gg/api/player/{}/match_history?page=0&limit={}".format(user, replays_count)
     user_name = get_player_profile(user)[1]
 
+    # devide the information of the replays
     response_replays = get_json(url)
     user_replay_count = response_replays["totalCount"]
     all_replay_info = response_replays["replays"]
 
+    # create embed
     replays_embed = discord.Embed(
         title="Replays",
         color=discord.Color.blue()
@@ -311,6 +335,7 @@ async def get_replays(ctx):
     footer = user_name + " has " + str(user_replay_count) + " replays."
     replays_embed.set_footer(text=footer)
 
+    # add fields with replays to embed
     for replay in all_replay_info[:int(replays_count)]:
         date_str = replay['date']
         date_obj = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
@@ -331,19 +356,22 @@ async def get_replays(ctx):
         replays_embed.add_field(
             value=msg,
             name="{} | {} | {}". format(replay['gameMode'], date_str, "Win" if win else "Loss"))
-
+    # if there is more than 10 replays requested, add another field linking to the full replays page for the user
     if state:
         url = "https://calculated.gg/search/replays?page=0&limit={}&player_ids=".format(real_count)
         link = "Link: [{}]({})".format("Rest of replays", url + user)
         replays_embed.add_field(name="Rest of replays can be found here: ", value=link, inline=False)
 
+    # send embed
     await bot.send_message(ctx.message.channel, embed=replays_embed)
 
 
+# explain command
 @bot.command(name="explain", aliases=["e", "ex", "expl"], pass_context=True)
 async def get_explanation(ctx):
     args = ctx.message.content.split(" ")
 
+    # see if stat exists, if not tell user and end, if yes continue
     stat = args[1]
     try:
         response = explanations[stat]
@@ -353,21 +381,25 @@ async def get_explanation(ctx):
 
     explanation = response[0]
 
+    # create embed
     explain_embed = discord.Embed(
         color = discord.Color.blue(),
         title=stat,
         description=explanation
     )
 
+    # send embed
     await bot.send_message(ctx.message.channel, embed=explain_embed)
 
 
 # id command
 @bot.command(name="id", pass_context=True)
 async def get_id(ctx):
+    # fetch user id
     args = ctx.message.content.split(" ")
     user_id = get_user_id(args[1])
 
+    # send response
     await bot.send_message(ctx.message.channel, "Your id is: " + user_id)
 
 
