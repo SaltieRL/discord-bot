@@ -252,6 +252,8 @@ async def get_stat(ctx):
         )
         stats_embed.set_author(name=stat,
                                icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+        if args[1] in explanations:
+            stats_embed.set_footer(text=explanations[args[1]][0])
         for name in ids_maybe:
             id = resolve_custom_url(name)
             name = get_player_profile(id)[1] + "   "

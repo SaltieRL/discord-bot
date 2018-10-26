@@ -1,8 +1,8 @@
 explanations = {
     "total_passes": ["Total passes that took place this game", "General"],
-    "total_hits": ["Total number of hits that took place in a game (using hit detection*)", "General"],
+    "hits": ["Total number of hits that took place in a game (using hit detection*)", "General"],
     "total_dribble_conts": ["This is the second, third, … touch of a dribble", "General"],
-    "total_aerials": ["Total number of aerials that took place this game", "General"],
+    "aerials": ["Total number of aerials that took place this game", "General"],
     "total_dribbles": ["Total number of dribbles that took place in a game", "General"],
     "useful hits": ["Average distance the ball went after being hit before being touched by another player", "General"],
     "'is_keyboard": ["If the player is using a keyboard.", "General"],
