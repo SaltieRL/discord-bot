@@ -310,7 +310,7 @@ async def get_replays(ctx):
 
         replays_embed.add_field(
             value=msg,
-            name="{}, {}, {}". format(replay['gameMode'], date_str, "Win" if win else "Loss"))
+            name="{} | {} | {}". format(replay['gameMode'], date_str, "Win" if win else "Loss"))
 
     if state:
         url = "https://calculated.gg/search/replays?page=0&limit={}&player_ids=".format(real_count)
