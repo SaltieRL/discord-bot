@@ -1,3 +1,5 @@
+from explanations_list import explanations
+
 import datetime
 import json
 import sys
@@ -6,12 +8,16 @@ import discord
 import requests
 from discord.ext.commands import Bot
 
+'''
 try:
     from config import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
+'''
 
+BOT_PREFIX = "!"
+TOKEN = "NDk3NDIxNjY1MjUzMTk1Nzg3.DrIjXA.6U0KRPZNz_izOKWYDAm8ubDIvy8"
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
