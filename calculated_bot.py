@@ -8,13 +8,16 @@ import discord
 import requests
 from discord.ext.commands import Bot
 
-
+'''
 try:
     from config import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
+'''
 
+BOT_PREFIX = "!"
+TOKEN = "NDk3NDIxNjY1MjUzMTk1Nzg3.DrUDkw.aNpHHj87GZsjqspgrK45ehmvnpM"
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
@@ -188,27 +191,26 @@ async def display_full_queue():
     await bot.say(embed=embed)
 
 
-# stats command
+# profile command
 @bot.command(name="profile", aliases="p", pass_context=True)
 async def get_profile(ctx):
     args = ctx.message.content.split(" ")
     id = resolve_custom_url(args[1])
 
-    # fetches the stats for the ID
+    # fetches the profile for the ID. if user can not be found, tell the user so.
     response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
-
+    
     car_name = response_stats["car"]["carName"]
     car_percentage = str(round(response_stats["car"]["carPercentage"] * 100, 1)) + "%"
-    avatar_link, avatar_name, platform, past_names = get_player_profile(id)
+    try:
+        avatar_link, avatar_name, platform, past_names = get_player_profile(id)
+    except KeyError:
+        await bot.send_message(ctx.message.channel, "User could not be found, please try again.")
+        return
 
     list_past_names = ""
-    for x in past_names:
-        list_past_names = list_past_names + x + "\n"
-
-    if platform == "Steam":
-        platform_url = "https://cdn.discordapp.com/attachments/317990830331658240/498493530402979842/latest.png"
-    else:
-        platform_url = ""
+    for name in past_names:
+        list_past_names = list_past_names + name + "\n"
 
     # creates stats_embed
     stats_embed = discord.Embed(
