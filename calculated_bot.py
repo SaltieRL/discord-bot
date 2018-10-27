@@ -16,7 +16,6 @@ except ImportError:
     sys.exit()
 
 
-
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
 
@@ -231,11 +230,16 @@ async def get_rank(ctx):
     args = ctx.message.content.split(" ")
     id = resolve_custom_url(args[1])
 
-    avatar_link, avatar_name, platform, past_names = get_player_profile(id)
+    try:
+        avatar_link, avatar_name, platform, past_names = get_player_profile(id)
+    except KeyError:
+        await bot.send_message(ctx.message.channel, "User could not be found, please try again.")
+        return
+
     # get user's ranks
     ranks = get_json("https://calculated.gg/api/player/{}/ranks".format(id))
 
-    # creat embed
+    # create embed
     stats_embed = discord.Embed(
         color=discord.Color.blue()
     )
