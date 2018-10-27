@@ -140,7 +140,7 @@ async def get_help(ctx):
         replays_help_embed.add_field(name="Description", value="Sends link to the latest amount of replays for the given id.", inline=False)
         replays_help_embed.add_field(name="Arguments", value="!replays takes the following arguments: `id` and `amount`", inline=False)
         replays_help_embed.add_field(name="id accepts: ", value="The Calculated.gg id of a user (can be found with !id)", inline=False)
-        replays_help_embed.add_field(name="amount accepts: ", value="an integer between 1 and 10", inline=False)
+        replays_help_embed.add_field(name="amount accepts: ", value="an integer between 1 and 10. If no amount is given, bot will give 5 replays", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=replays_help_embed)
     # if first argument is explain send explain_help_embed
@@ -338,17 +338,22 @@ async def get_stat(ctx):
 @bot.command(name="replays", pass_context=True)
 async def get_replays(ctx):
     args = ctx.message.content.split(" ")
+    set_replay_count = True
     state = False
-    # if there are too few arguments. tell the user so
-    if len(args) < 3:
-        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!replays <id> <amount>`")
-        return
-    elif len(args) > 3:
+    # if there are too many arguments. tell the user so
+    if len(args) > 3:
         await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!replays <id> <amount>`")
         return
+    elif len(args) < 2:
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!replays <id> <amount>`")
+        return
+    elif len(args) == 2:
+        replays_count = 5
+        set_replay_count = False
 
     # check if there is too many replays requested
-    replays_count = int(args[2])
+    if set_replay_count:
+        replays_count = int(args[2])
     if replays_count > 10:
         state = True
         real_count = replays_count
