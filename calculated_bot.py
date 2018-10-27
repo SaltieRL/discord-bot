@@ -411,7 +411,11 @@ async def get_id(ctx):
     user_id = get_user_id(args[1])
 
     # send response
-    await bot.send_message(ctx.message.channel, "Your id is: " + user_id)
+    try:
+        await bot.send_message(ctx.message.channel, "Your id is: " + user_id)
+    except TypeError:
+        await bot.send_message(ctx.message.channel, "User could not be found, please try again.")
+        return
 
 
 # when bot user is ready, prints "READY"
