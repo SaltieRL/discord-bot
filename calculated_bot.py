@@ -104,7 +104,7 @@ async def get_help(ctx):
         stats_help_embed.set_author(name="Profile",
                                     icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504677577722691598/person_1058425.png")
         stats_help_embed.add_field(name="Descrition", value="Shows the profile for the given id.", inline=False)
-        stats_help_embed.add_field(name="Parameters", value="!profile takes in the following parameters: `id`",
+        stats_help_embed.add_field(name="Arguments", value="!profile takes in the following parameters: `id`",
                                    inline=False)
         stats_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with !id)"
                                                              "\n The players username, more succesful if you use the id instead of the username.")
@@ -122,7 +122,7 @@ async def get_help(ctx):
 
         stats_help_embed.set_author(name="Stat", icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
         stats_help_embed.add_field(name="Description", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
-        stats_help_embed.add_field(name="Parameters", value="!stat takes the following parameters: `stat` and `id`", inline=False)
+        stats_help_embed.add_field(name="Arguments", value="!stat takes the following arguments: `stat` and `id`", inline=False)
         stats_help_embed.add_field(name="id accepts:", value="A Calculated.gg ID, can be found with !id", inline=False)
 
 
@@ -138,7 +138,7 @@ async def get_help(ctx):
         )
         replays_help_embed.set_author(name="Replays", icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504675168640172032/495386-200.png")
         replays_help_embed.add_field(name="Description", value="Sends link to the latest amount of replays for the given id.", inline=False)
-        replays_help_embed.add_field(name="Parameters", value="!replays takes the following parameters: `id` and `amount`", inline=False)
+        replays_help_embed.add_field(name="Arguments", value="!replays takes the following arguments: `id` and `amount`", inline=False)
         replays_help_embed.add_field(name="id accepts: ", value="The Calculated.gg id of a user (can be found with !id)", inline=False)
         replays_help_embed.add_field(name="amount accepts: ", value="an integer between 1 and 10", inline=False)
 
@@ -155,7 +155,7 @@ async def get_help(ctx):
         )
         explain_help_embed.set_author(name="Explain", icon_url="https://media.discordapp.net/attachments/495315775423381518/499487940414537728/confirmation_verification-512.png")
         explain_help_embed.add_field(name="Description", value="Gives an explanation for the the given stat", inline=False)
-        explain_help_embed.add_field(name="Parameters", value="!explain takes the following parameters: `stat`", inline=False)
+        explain_help_embed.add_field(name="Arguments", value="!explain takes the following arguments: `stat`", inline=False)
         explain_help_embed.add_field(name="stat accepts", value=accepts)
 
         await bot.send_message(ctx.message.channel, embed=explain_help_embed)
