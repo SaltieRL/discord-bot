@@ -4,6 +4,7 @@ import datetime
 import json
 import sys
 
+from discord import Game
 import discord
 import requests
 from discord.ext.commands import Bot
@@ -14,7 +15,6 @@ try:
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
-
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
@@ -418,9 +418,10 @@ async def get_id(ctx):
         return
 
 
-# when bot user is ready, prints "READY"
+# when bot user is ready, prints "READY", and set presence
 @bot.event
 async def on_ready():
+    await bot.change_presence(game=Game(name="with stat calculations"))
     print('READY')
 
 
