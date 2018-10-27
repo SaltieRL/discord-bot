@@ -48,9 +48,9 @@ def get_player_profile(id):
 
 def resolve_custom_url(url):
     # fetches the ID for the given username
-    try:
-        response_id = get_json("https://calculated.gg/api/player/{}".format(url))
-    except str(type(response_id)) == "<class 'dict'>":
+
+    response_id = get_json("https://calculated.gg/api/player/{}".format(url))
+    if str(type(response_id)) == "<class 'dict'>":
         response_id = "User not found"
     return response_id
 
@@ -81,21 +81,21 @@ async def get_help(ctx):
         help_embed.set_footer(text="do \"!help <command name>\" for more information on a command.")
         help_embed.set_author(name="Help",
                               icon_url="https://media.discordapp.net/attachments/495315775423381518/499487940414537728/confirmation_verification-512.png")
-        help_embed.add_field(name="!help", value="Shows this message", inline=False)
-        help_embed.add_field(name="!queue !q", value="Shows the current amount of replays in the queue.", inline=False)
-        help_embed.add_field(name="!profile <id>", value="Shows the profile for the given id.", inline=False)
-        help_embed.add_field(name="!id <username>", value="Gives the Calulated.gg id for the username.", inline=False)
-        help_embed.add_field(name="!stat <stat> <id1> <id2> ...", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
-        help_embed.add_field(name="!replays <id> <amount>", value="Sends link to the latest amount of replays for the given id.", inline=False)
-        help_embed.add_field(name="!explain <stat>", value="Gives an explanation for the the given stat", inline=False)
-        help_embed.add_field(name="!ranks <id>", value="Shows the ranks for the given id", inline=False)
+        help_embed.add_field(name="c+help", value="Shows this message", inline=False)
+        help_embed.add_field(name="c+queue", value="Shows the current amount of replays in the queue.", inline=False)
+        help_embed.add_field(name="c+profile <id>", value="Shows the profile for the given id.", inline=False)
+        help_embed.add_field(name="c+id <username>", value="Gives the Calulated.gg id for the username.", inline=False)
+        help_embed.add_field(name="c+stat <stat> <id1> <id2> ...", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
+        help_embed.add_field(name="c+replays <id> <amount>", value="Sends link to the latest amount of replays for the given id.", inline=False)
+        help_embed.add_field(name="c+explain <stat>", value="Gives an explanation for the the given stat", inline=False)
+        help_embed.add_field(name="c+ranks <id>", value="Shows the ranks for the given id", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=help_embed)
 
     # otherwise if the first argument is "profile", send the stats_help_embed
     elif args[1] == "profile":
         stats_help_embed = discord.Embed(
-            description="!profile <id>",
+            description="c+profile <id>",
             colour=discord.Colour.blue()
         )
 
@@ -104,9 +104,9 @@ async def get_help(ctx):
         stats_help_embed.set_author(name="Profile",
                                     icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504677577722691598/person_1058425.png")
         stats_help_embed.add_field(name="Descrition", value="Shows the profile for the given id.", inline=False)
-        stats_help_embed.add_field(name="Arguments", value="!profile takes in the following parameters: `id`",
+        stats_help_embed.add_field(name="Arguments", value="c+profile takes in the following parameters: `id`",
                                    inline=False)
-        stats_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with !id)"
+        stats_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with c+id)"
                                                              "\n The players username, more succesful if you use the id instead of the username.")
 
         await bot.send_message(ctx.message.channel, embed=stats_help_embed)
@@ -116,14 +116,14 @@ async def get_help(ctx):
         stats = get_json("https://calculated.gg/api/player/76561198055442516/play_style/all")['dataPoints']
         stats_list = [s['name'].replace(' ', '\_') for s in stats]
         stats_help_embed = discord.Embed(
-            description="!stat <stat> <id1> <id2> ...",
+            description="c+stat <stat> <id1> <id2> ...",
             colour=discord.Colour.blue()
         )
 
         stats_help_embed.set_author(name="Stat", icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
         stats_help_embed.add_field(name="Description", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
-        stats_help_embed.add_field(name="Arguments", value="!stat takes the following arguments: `stat` and `id`", inline=False)
-        stats_help_embed.add_field(name="id accepts:", value="A Calculated.gg ID, can be found with !id", inline=False)
+        stats_help_embed.add_field(name="Arguments", value="c+stat takes the following arguments: `stat` and `id`", inline=False)
+        stats_help_embed.add_field(name="id accepts:", value="A Calculated.gg ID, can be found with c+id", inline=False)
 
 
 
@@ -133,13 +133,13 @@ async def get_help(ctx):
     # if first argument is replays send replays_help_embed
     elif args[1] == "replays":
         replays_help_embed = discord.Embed(
-            description="!replays <id> <amount>",
+            description="c+replays <id> <amount>",
             colour=discord.Colour.blue()
         )
         replays_help_embed.set_author(name="Replays", icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504675168640172032/495386-200.png")
         replays_help_embed.add_field(name="Description", value="Sends link to the latest amount of replays for the given id.", inline=False)
-        replays_help_embed.add_field(name="Arguments", value="!replays takes the following arguments: `id` and `amount`", inline=False)
-        replays_help_embed.add_field(name="id accepts: ", value="The Calculated.gg id of a user (can be found with !id)", inline=False)
+        replays_help_embed.add_field(name="Arguments", value="c+replays takes the following arguments: `id` and `amount`", inline=False)
+        replays_help_embed.add_field(name="id accepts: ", value="The Calculated.gg id of a user (can be found with c+id)", inline=False)
         replays_help_embed.add_field(name="amount accepts: ", value="an integer between 1 and 10. If no amount is given, bot will give 5 replays", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=replays_help_embed)
@@ -150,24 +150,24 @@ async def get_help(ctx):
             accepts = accepts + stat + ", "
 
         explain_help_embed = discord.Embed(
-            description="!explain <stat>",
+            description="c+explain <stat>",
             color=discord.Color.blue()
         )
         explain_help_embed.set_author(name="Explain", icon_url="https://media.discordapp.net/attachments/495315775423381518/499487940414537728/confirmation_verification-512.png")
         explain_help_embed.add_field(name="Description", value="Gives an explanation for the the given stat", inline=False)
-        explain_help_embed.add_field(name="Arguments", value="!explain takes the following arguments: `stat`", inline=False)
+        explain_help_embed.add_field(name="Arguments", value="c+explain takes the following arguments: `stat`", inline=False)
         explain_help_embed.add_field(name="stat accepts", value=accepts)
 
         await bot.send_message(ctx.message.channel, embed=explain_help_embed)
     elif args[1] == "ranks":
         ranks_help_embed = discord.Embed(
-            description="!ranks <id>",
+            description="c+ranks <id>",
             color=discord.Color.blue()
         )
         ranks_help_embed.set_author(name="Ranks")
         ranks_help_embed.add_field(name="Description", value="Shows the ranks for the given id.", inline=False)
-        ranks_help_embed.add_field(name="Arguments", value="!ranks takes the followig arguments: `id`", inline=False)
-        ranks_help_embed.add_field(name="id accepts", value="A Calculated.gg ID. Can be found with !id")
+        ranks_help_embed.add_field(name="Arguments", value="c+ranks takes the followig arguments: `id`", inline=False)
+        ranks_help_embed.add_field(name="id accepts", value="A Calculated.gg ID. Can be found with c+id")
         await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
     # if the arguments does not match any embed, send an error message
     else:
@@ -209,10 +209,10 @@ async def get_profile(ctx):
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
-        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!profile <id>`")
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `c+profile <id>`")
         return
     elif len(args) > 2:
-        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!profile <id>`")
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+profile <id>`")
         return
 
     id = resolve_custom_url(args[1])
@@ -252,10 +252,10 @@ async def get_rank(ctx):
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
-        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!ranks <id>`")
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `c+ranks <id>`")
         return
     elif len(args) > 2:
-        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!ranks <id>`")
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+ranks <id>`")
         return
 
     id = resolve_custom_url(args[1])
@@ -291,7 +291,7 @@ async def get_stat(ctx):
     args = ctx.message.content.split(" ")
     # responds if not enough arguments
     if len(args) < 3:
-        await bot.send_message(ctx.message.channel, 'Not enough arguments! The proper form of this command is: `!stat <stat> <id1> <id2> ...`')
+        await bot.send_message(ctx.message.channel, 'Not enough arguments! The proper form of this command is: `c+stat <stat> <id1> <id2> ...`')
         return
 
     stat = args[1].replace('_', ' ')
@@ -342,10 +342,10 @@ async def get_replays(ctx):
     state = False
     # if there are too many arguments. tell the user so
     if len(args) > 3:
-        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!replays <id> <amount>`")
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+replays <id> <amount>`")
         return
     elif len(args) < 2:
-        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!replays <id> <amount>`")
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `c+replays <id> <amount>`")
         return
     elif len(args) == 2:
         replays_count = 5
@@ -418,10 +418,10 @@ async def get_replays(ctx):
 async def get_explanation(ctx):
     args = ctx.message.content.split(" ")
     if len(args) < 2:
-        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!explain <stat>`")
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `c+explain <stat>`")
         return
     if len(args) > 2:
-        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!explain stat>`")
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+explain stat>`")
         return
 
     # see if stat exists, if not tell user and end, if yes continue
@@ -452,10 +452,10 @@ async def get_id(ctx):
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
-        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is. `!id <username>`")
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is. `c+id <username>`")
         return
     if len(args) > 2:
-        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!id <username>`")
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+id <username>`")
         return
 
     user_id = get_user_id(args[1])
