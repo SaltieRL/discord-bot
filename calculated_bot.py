@@ -88,6 +88,7 @@ async def get_help(ctx):
         help_embed.add_field(name="!stat <stat> <id1> <id2> ...", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
         help_embed.add_field(name="!replays <id> <amount>", value="Sends link to the latest amount of replays for the given id.", inline=False)
         help_embed.add_field(name="!explain <stat>", value="Gives an explanation for the the given stat", inline=False)
+        help_embed.add_field(name="!ranks <id>", value="Shows the ranks for the given id", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=help_embed)
 
@@ -142,7 +143,7 @@ async def get_help(ctx):
         replays_help_embed.add_field(name="amount accepts: ", value="an integer between 1 and 10", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=replays_help_embed)
-        # if first argument is explain send explain_help_embed
+    # if first argument is explain send explain_help_embed
     elif args[1] == "explain":
         accepts = ""
         for stat in explanations:
@@ -158,6 +159,16 @@ async def get_help(ctx):
         explain_help_embed.add_field(name="stat accepts", value=accepts)
 
         await bot.send_message(ctx.message.channel, embed=explain_help_embed)
+    elif args[1] == "ranks":
+        ranks_help_embed = discord.Embed(
+            description="!ranks <id>",
+            color=discord.Color.blue()
+        )
+        ranks_help_embed.set_author(name="Ranks")
+        ranks_help_embed.add_field(name="Description", value="Shows the ranks for the given id.", inline=False)
+        ranks_help_embed.add_field(name="Arguments", value="!ranks takes the followig arguments: `id`", inline=False)
+        ranks_help_embed.add_field(name="id accepts", value="A Calculated.gg ID. Can be found with !id")
+        await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
     # if the arguments does not match any embed, send an error message
     else:
         await bot.send_message(ctx.message.channel,
