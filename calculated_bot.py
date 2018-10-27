@@ -47,7 +47,10 @@ def get_player_profile(id):
 
 def resolve_custom_url(url):
     # fetches the ID for the given username
-    response_id = get_json("https://calculated.gg/api/player/{}".format(url))
+    try:
+        response_id = get_json("https://calculated.gg/api/player/{}".format(url))
+    except str(type(response_id)) == "<class 'dict'>":
+        response_id = "User not found"
     return response_id
 
 
@@ -256,7 +259,7 @@ async def get_rank(ctx):
 
 
 # stat command
-@bot.command(name="stat", aliases="s", pass_context=True)
+@bot.command(name="stat", aliases=["s", "stats"], pass_context=True)
 async def get_stat(ctx):
     args = ctx.message.content.split(" ")
     # responds if not enough arguments
@@ -291,7 +294,7 @@ async def get_stat(ctx):
         # fields with the usernames as names and their stats as values
         for name in ids_maybe:
             id = resolve_custom_url(name)
-            name = get_player_profile(id)[1] + "   "
+            name = get_player_profile(id)[1]
             stats = get_json("https://calculated.gg/api/player/{}/play_style/all".format(id))['dataPoints']
             matches = [s for s in stats if s['name'] == stat]
             if len(matches) == 0:
@@ -323,7 +326,11 @@ async def get_replays(ctx):
     # get the user's information and replays
     user = get_user_id(args[1])
     url = "https://calculated.gg/api/player/{}/match_history?page=0&limit={}".format(user, replays_count)
-    user_name = get_player_profile(user)[1]
+    try:
+        user_name = get_player_profile(user)[1]
+    except KeyError:
+        await bot.send_message(ctx.message.channel, "User could not be found, please try again.")
+        return
 
     # devide the information of the replays
     response_replays = get_json(url)
