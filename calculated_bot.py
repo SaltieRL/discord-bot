@@ -8,16 +8,14 @@ import discord
 import requests
 from discord.ext.commands import Bot
 
-'''
+
 try:
     from config import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
-'''
 
-BOT_PREFIX = "!"
-TOKEN = "NDk3NDIxNjY1MjUzMTk1Nzg3.DrUDkw.aNpHHj87GZsjqspgrK45ehmvnpM"
+
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
@@ -199,7 +197,7 @@ async def get_profile(ctx):
 
     # fetches the profile for the ID. if user can not be found, tell the user so.
     response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
-    
+
     car_name = response_stats["car"]["carName"]
     car_percentage = str(round(response_stats["car"]["carPercentage"] * 100, 1)) + "%"
     try:
