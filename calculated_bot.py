@@ -16,6 +16,7 @@ except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
 
+
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
 
@@ -84,7 +85,7 @@ async def get_help(ctx):
         help_embed.add_field(name="!queue !q", value="Shows the current amount of replays in the queue.", inline=False)
         help_embed.add_field(name="!profile <id>", value="Shows the profile for the given id.", inline=False)
         help_embed.add_field(name="!id <username>", value="Gives the Calulated.gg id for the username.", inline=False)
-        help_embed.add_field(name="!stat <stat> <ids..>", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
+        help_embed.add_field(name="!stat <stat> <id1> <id2> ...", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
         help_embed.add_field(name="!replays <id> <amount>", value="Sends link to the latest amount of replays for the given id.", inline=False)
         help_embed.add_field(name="!explain <stat>", value="Gives an explanation for the the given stat", inline=False)
 
@@ -114,14 +115,14 @@ async def get_help(ctx):
         stats = get_json("https://calculated.gg/api/player/76561198055442516/play_style/all")['dataPoints']
         stats_list = [s['name'].replace(' ', '\_') for s in stats]
         stats_help_embed = discord.Embed(
-            description="!stat <stat> <ids...>",
+            description="!stat <stat> <id1> <id2> ...",
             colour=discord.Colour.blue()
         )
 
         stats_help_embed.set_author(name="Stat", icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
         stats_help_embed.add_field(name="Description", value="Shows the id's value for the given stat. Can cmpare stats if multiple ids included", inline=False)
-        stats_help_embed.add_field(name="Parameters", value="!stat takes the following parameters: `stat` and `ids..`", inline=False)
-        stats_help_embed.add_field(name="ids.. accepts:", value="1 or more Calculated.gg IDs, can be found with !id", inline=False)
+        stats_help_embed.add_field(name="Parameters", value="!stat takes the following parameters: `stat` and `id`", inline=False)
+        stats_help_embed.add_field(name="id accepts:", value="A Calculated.gg ID, can be found with !id", inline=False)
 
 
 
@@ -195,8 +196,15 @@ async def display_full_queue():
 @bot.command(name="profile", aliases="p", pass_context=True)
 async def get_profile(ctx):
     args = ctx.message.content.split(" ")
-    id = resolve_custom_url(args[1])
 
+    if len(args) < 2:
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!profile <id>`")
+        return
+    elif len(args) > 2:
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!profile <id>`")
+        return
+
+    id = resolve_custom_url(args[1])
     # fetches the profile for the ID. if user can not be found, tell the user so.
     response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
 
@@ -231,6 +239,14 @@ async def get_profile(ctx):
 @bot.command(name="ranks", aliases="rank", pass_context=True)
 async def get_rank(ctx):
     args = ctx.message.content.split(" ")
+
+    if len(args) < 2:
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!ranks <id>`")
+        return
+    elif len(args) > 2:
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!ranks <id>`")
+        return
+
     id = resolve_custom_url(args[1])
 
     try:
@@ -264,8 +280,9 @@ async def get_stat(ctx):
     args = ctx.message.content.split(" ")
     # responds if not enough arguments
     if len(args) < 3:
-        await bot.send_message(ctx.message.channel, 'Not enough arguments!')
+        await bot.send_message(ctx.message.channel, 'Not enough arguments! The proper form of this command is: `!stat <stat> <id1> <id2> ...`')
         return
+
     stat = args[1].replace('_', ' ')
     ids_maybe = args[2:]
     # if only one id is given
@@ -313,7 +330,10 @@ async def get_replays(ctx):
     state = False
     # if there are too few arguments. tell the user so
     if len(args) < 3:
-        await bot.send_message(ctx.message.channel, "Not enough arguments!")
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!replays <id> <amount>`")
+        return
+    elif len(args) > 3:
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!replays <id> <amount>`")
         return
 
     # check if there is too many replays requested
@@ -381,6 +401,12 @@ async def get_replays(ctx):
 @bot.command(name="explain", aliases=["e", "ex", "expl"], pass_context=True)
 async def get_explanation(ctx):
     args = ctx.message.content.split(" ")
+    if len(args) < 2:
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `!explain <stat>`")
+        return
+    if len(args) > 2:
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!explain stat>`")
+        return
 
     # see if stat exists, if not tell user and end, if yes continue
     stat = args[1]
@@ -408,6 +434,14 @@ async def get_explanation(ctx):
 async def get_id(ctx):
     # fetch user id
     args = ctx.message.content.split(" ")
+
+    if len(args) < 2:
+        await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is. `!id <username>`")
+        return
+    if len(args) > 2:
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `!id <username>`")
+        return
+
     user_id = get_user_id(args[1])
 
     # send response
