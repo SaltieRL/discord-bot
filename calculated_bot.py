@@ -421,7 +421,7 @@ async def get_explanation(ctx):
         await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `c+explain <stat>`")
         return
     if len(args) > 2:
-        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+explain stat>`")
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+explain <stat>`")
         return
 
     # see if stat exists, if not tell user and end, if yes continue
