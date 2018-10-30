@@ -467,6 +467,52 @@ async def get_id(ctx):
         await bot.send_message(ctx.message.channel, "User could not be found, please try again.")
         return
 
+# upload replay command
+@bot.command(name="upload", aliases=["up"], pass_context=True)
+async def upload_file(ctx):
+    args = ctx.message.content.split(" ")
+    if len(args) > 2:
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+upload` and provide a file")
+        return
+
+    attachment = ctx.message.attachments
+    if len(attachment) > 0:
+        replays = {}
+
+        replay_url = attachment[0]['url']
+        replay_name = attachment[0]['filename']
+        replay_request = requests.get(replay_url, allow_redirects=True, stream=True)
+        replay_file = replay_request.content
+
+        replays['replays'] = (replay_name, replay_file)
+
+        up_url = 'https://calculated.gg/api/upload'
+        reply = requests.post(up_url, files=replays)
+        if not list(reply.json()):
+            message = 'No files uploaded, not a replay'
+            await bot.send_message(ctx.message.channel, message)
+            return
+
+        if reply.status_code == 202:
+            reply_id = list(reply.json())[0]
+            payload = {'ids': reply_id}
+            status = requests.get(up_url, params=payload)
+            if list(status.json())[0] == 'FAILURE':
+                message = 'No files uploaded: FAILURE'
+
+            elif list(status.json())[0] in ['PENDING', 'STARTED', 'SUCCESS']:
+                message = 'Replay uploaded'
+
+            else:
+                message = "Unknown status: " + list(status.json())[0]
+        else:
+            message = 'No files uploaded, error ' + reply.status_code
+
+        await bot.send_message(ctx.message.channel, message)
+    else:
+        await bot.send_message(ctx.message.channel, 'Please provide a replay file as an attachment')
+    return
+
 
 # when bot user is ready, prints "READY", and set presence
 @bot.event
