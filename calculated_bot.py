@@ -89,6 +89,8 @@ async def get_help(ctx):
         help_embed.add_field(name="c+replays <id> <amount>", value="Sends link to the latest amount of replays for the given id.", inline=False)
         help_embed.add_field(name="c+explain <stat>", value="Gives an explanation for the the given stat", inline=False)
         help_embed.add_field(name="c+ranks <id>", value="Shows the ranks for the given id", inline=False)
+        help_embed.add_field(name="c+upload (optional -q)", value="Uploads attached replay", inline=False)
+        help_embed.add_field(name="c+status <replay_id>", value="Returns the status of an uploaded replay", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=help_embed)
 
@@ -168,6 +170,26 @@ async def get_help(ctx):
         ranks_help_embed.add_field(name="Description", value="Shows the ranks for the given id.", inline=False)
         ranks_help_embed.add_field(name="Arguments", value="c+ranks takes the followig arguments: `id`", inline=False)
         ranks_help_embed.add_field(name="id accepts", value="A Calculated.gg ID. Can be found with c+id")
+        await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
+    elif args[1] == "upload":
+        ranks_help_embed = discord.Embed(
+            description="c+upload (optional -q)",
+            color=discord.Color.blue()
+        )
+        ranks_help_embed.set_author(name="upload")
+        ranks_help_embed.add_field(name="Description", value="Uploads the attached replay to calculated.gg", inline=False)
+        ranks_help_embed.add_field(name="Arguments", value="c+upload takes the followig optional argument: `-q`", inline=False)
+        ranks_help_embed.add_field(name="-q", value="Stops the bot from replying to the upload command if it uploads correctly")
+        await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
+    elif args[1] == "status":
+        ranks_help_embed = discord.Embed(
+            description="c+status <replay_id>",
+            color=discord.Color.blue()
+        )
+        ranks_help_embed.set_author(name="status")
+        ranks_help_embed.add_field(name="Description", value="Returns the status of uploaded replay", inline=False)
+        ranks_help_embed.add_field(name="Arguments", value="c+status takes the followig optional argument: `<replay_id>`", inline=False)
+        ranks_help_embed.add_field(name="<replay_id>", value="Given to the user after uploading a replay using the bot")
         await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
     # if the arguments does not match any embed, send an error message
     else:
