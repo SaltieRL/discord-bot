@@ -89,6 +89,8 @@ async def get_help(ctx):
         help_embed.add_field(name="c+replays <id> <amount>", value="Sends link to the latest amount of replays for the given id.", inline=False)
         help_embed.add_field(name="c+explain <stat>", value="Gives an explanation for the the given stat", inline=False)
         help_embed.add_field(name="c+ranks <id>", value="Shows the ranks for the given id", inline=False)
+        help_embed.add_field(name="c+upload (optional -q)", value="Uploads attached replay", inline=False)
+        help_embed.add_field(name="c+status <replay_id>", value="Returns the status of an uploaded replay", inline=False)
 
         await bot.send_message(ctx.message.channel, embed=help_embed)
 
@@ -168,6 +170,26 @@ async def get_help(ctx):
         ranks_help_embed.add_field(name="Description", value="Shows the ranks for the given id.", inline=False)
         ranks_help_embed.add_field(name="Arguments", value="c+ranks takes the followig arguments: `id`", inline=False)
         ranks_help_embed.add_field(name="id accepts", value="A Calculated.gg ID. Can be found with c+id")
+        await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
+    elif args[1] == "upload":
+        ranks_help_embed = discord.Embed(
+            description="c+upload (optional -q)",
+            color=discord.Color.blue()
+        )
+        ranks_help_embed.set_author(name="upload")
+        ranks_help_embed.add_field(name="Description", value="Uploads the attached replay to calculated.gg", inline=False)
+        ranks_help_embed.add_field(name="Arguments", value="c+upload takes the followig optional argument: `-q`", inline=False)
+        ranks_help_embed.add_field(name="-q", value="Stops the bot from replying to the upload command if it uploads correctly")
+        await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
+    elif args[1] == "status":
+        ranks_help_embed = discord.Embed(
+            description="c+status <replay_id>",
+            color=discord.Color.blue()
+        )
+        ranks_help_embed.set_author(name="status")
+        ranks_help_embed.add_field(name="Description", value="Returns the status of uploaded replay", inline=False)
+        ranks_help_embed.add_field(name="Arguments", value="c+status takes the followig optional argument: `<replay_id>`", inline=False)
+        ranks_help_embed.add_field(name="<replay_id>", value="Given to the user after uploading a replay using the bot")
         await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
     # if the arguments does not match any embed, send an error message
     else:
@@ -421,7 +443,7 @@ async def get_explanation(ctx):
         await bot.send_message(ctx.message.channel, "Not enough arguments! The proper form of this command is: `c+explain <stat>`")
         return
     if len(args) > 2:
-        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+explain stat>`")
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+explain <stat>`")
         return
 
     # see if stat exists, if not tell user and end, if yes continue
@@ -467,6 +489,87 @@ async def get_id(ctx):
         await bot.send_message(ctx.message.channel, "User could not be found, please try again.")
         return
 
+# upload replay command
+@bot.command(name="upload", aliases=["up"], pass_context=True)
+async def upload_file(ctx):
+    args = ctx.message.content.split(" ")
+    if len(args) > 2:
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+upload` and provide a file")
+        return
+    if len(args) > 1 and args[1] == '-q':
+        silent = True
+    else:
+        silent = False
+
+    attachment = ctx.message.attachments
+    if len(attachment) > 0:
+        replays = {}
+
+        replay_url = attachment[0]['url']
+        replay_name = attachment[0]['filename']
+        replay_request = requests.get(replay_url, allow_redirects=True, stream=True)
+        replay_file = replay_request.content
+
+        replays['replays'] = (replay_name, replay_file)
+
+        up_url = 'https://calculated.gg/api/upload'
+        reply = requests.post(up_url, files=replays)
+        if not list(reply.json()):
+            message = 'No files uploaded, not a replay'
+            await bot.send_message(ctx.message.channel, message)
+            return
+
+        if reply.status_code == 202:
+            reply_id = list(reply.json())[0]
+            payload = {'ids': reply_id}
+            status = requests.get(up_url, params=payload)
+            if list(status.json())[0] == 'FAILURE':
+                message = 'No files uploaded: FAILURE'
+
+            elif list(status.json())[0] in ['PENDING', 'STARTED', 'SUCCESS']:
+                if not silent:
+                    message = f'Replays have been queued for parsing. Check its status with \n`!status {reply_id}`'
+
+            else:
+                message = "Unknown status: " + list(status.json())[0]
+        else:
+            message = 'No files uploaded, error ' + reply.status_code
+
+        await bot.send_message(ctx.message.channel, message)
+    else:
+        await bot.send_message(ctx.message.channel, 'Please provide a replay file as an attachment')
+    return
+
+# status replay command
+@bot.command(name="status", aliases=["st"], pass_context=True)
+async def status_replay(ctx):
+    args = ctx.message.content.split(" ")
+    if len(args) > 2:
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+status <task_id>`")
+        return
+
+    up_url = 'https://calculated.gg/api/upload'
+    replay_id = args[1]
+    #8-4-4-4-12
+    if len(replay_id) == 8+4+4+4+12+1*4:
+        split_id = replay_id.split('-')
+        if len(split_id[0]) == 8 and len(split_id[1]) == 4 and len(split_id[2]) == 4 and len(split_id[3]) == 4 and len(split_id[4]) == 12:
+            payload = {'ids': replay_id}
+            status = requests.get(up_url, params=payload)
+            if list(status.json())[0] == 'FAILURE':
+                message = 'No files uploaded: FAILURE'
+            elif list(status.json())[0] in ['PENDING', 'STARTED', 'SUCCESS']:
+                message = f'Status: {list(status.json())[0]}'
+            else:
+                message = "Unknown status: " + list(status.json())[0]
+        else:
+            message = 'Invalid id'
+    else:
+        message = 'Invalid id'
+
+
+    await bot.send_message(ctx.message.channel, message)
+    return
 
 # when bot user is ready, prints "READY", and set presence
 @bot.event
