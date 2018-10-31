@@ -4,7 +4,7 @@ explanations = {
     "total_dribble_conts": ["This is the second, third, … touch of a dribble", "General"],
     "aerials": ["Total number of aerials that took place this game", "General"],
     "total_dribbles": ["Total number of dribbles that took place in a game", "General"],
-    "useful hits": ["Average distance the ball went after being hit before being touched by another player", "General"],
+    "useful_hits": ["Average distance the ball went after being hit before being touched by another player", "General"],
     "is_keyboard": ["If the player is using a keyboard.", "General"],
     "turnovers": ["When the opposite team hits the ball twice after you had hit it and therefore have lost possession", "Turnovers"],
     "turnovers_on_my_half": ["When a turnover occurs but on the defending half", "Turnovers"],
