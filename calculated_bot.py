@@ -474,6 +474,10 @@ async def upload_file(ctx):
     if len(args) > 2:
         await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+upload` and provide a file")
         return
+    if len(args) > 1 and args[1] == '-q':
+        silent = True
+    else:
+        silent = False
 
     attachment = ctx.message.attachments
     if len(attachment) > 0:
@@ -501,7 +505,8 @@ async def upload_file(ctx):
                 message = 'No files uploaded: FAILURE'
 
             elif list(status.json())[0] in ['PENDING', 'STARTED', 'SUCCESS']:
-                message = 'Replay uploaded'
+                if not silent:
+                    message = f'Replays have been queued for parsing. Check its status with \n`!status {reply_id}`'
 
             else:
                 message = "Unknown status: " + list(status.json())[0]
@@ -513,6 +518,36 @@ async def upload_file(ctx):
         await bot.send_message(ctx.message.channel, 'Please provide a replay file as an attachment')
     return
 
+# status replay command
+@bot.command(name="status", aliases=["st"], pass_context=True)
+async def status_replay(ctx):
+    args = ctx.message.content.split(" ")
+    if len(args) > 2:
+        await bot.send_message(ctx.message.channel, "Too many arguments! The proper form of this command is: `c+status <task_id>`")
+        return
+
+    up_url = 'https://calculated.gg/api/upload'
+    replay_id = args[1]
+    #8-4-4-4-12
+    if len(replay_id) == 8+4+4+4+12+1*4:
+        split_id = replay_id.split('-')
+        if len(split_id[0]) == 8 and len(split_id[1]) == 4 and len(split_id[2]) == 4 and len(split_id[3]) == 4 and len(split_id[4]) == 12:
+            payload = {'ids': replay_id}
+            status = requests.get(up_url, params=payload)
+            if list(status.json())[0] == 'FAILURE':
+                message = 'No files uploaded: FAILURE'
+            elif list(status.json())[0] in ['PENDING', 'STARTED', 'SUCCESS']:
+                message = f'Status: {list(status.json())[0]}'
+            else:
+                message = "Unknown status: " + list(status.json())[0]
+        else:
+            message = 'Invalid id'
+    else:
+        message = 'Invalid id'
+
+
+    await bot.send_message(ctx.message.channel, message)
+    return
 
 # when bot user is ready, prints "READY", and set presence
 @bot.event
