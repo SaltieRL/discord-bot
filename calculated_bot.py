@@ -67,6 +67,7 @@ async def ping(ctx):
 # help command
 @bot.command(name="help", aliases="h", pass_context=True)
 async def get_help(ctx):
+    await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.lower().split(" ")
 
     # if the message only contains the !help, send the help_embed
@@ -230,6 +231,7 @@ async def get_help(ctx):
 # queue command
 @bot.command(name="queue", aliases="q", pass_context=True)
 async def display_queue(ctx):
+    await bot.send_typing(ctx.message.channel)
     response = get_json("https://calculated.gg/api/global/queue/count")
     await bot.send_message(ctx.message.channel, str(response[2]["count"]) + ' replays in the queue.')
 
@@ -258,6 +260,7 @@ async def display_full_queue():
 # profile command
 @bot.command(name="profile", aliases="p", pass_context=True)
 async def get_profile(ctx):
+    await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
@@ -303,6 +306,7 @@ async def get_profile(ctx):
 # ranks command
 @bot.command(name="ranks", aliases="rank", pass_context=True)
 async def get_rank(ctx):
+    await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
@@ -344,6 +348,7 @@ async def get_rank(ctx):
 # stat command
 @bot.command(name="stat", aliases=["s", "stats"], pass_context=True)
 async def get_stat(ctx):
+    await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.split(" ")
     # responds if not enough arguments
     if len(args) < 3:
@@ -394,6 +399,7 @@ async def get_stat(ctx):
 # replays command
 @bot.command(name="replays", pass_context=True)
 async def get_replays(ctx):
+    await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.split(" ")
     set_replay_count = True
     state = False
@@ -476,6 +482,7 @@ async def get_replays(ctx):
 # explain command
 @bot.command(name="explain", aliases=["e", "ex", "expl"], pass_context=True)
 async def get_explanation(ctx):
+    await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.split(" ")
     if len(args) < 2:
         await bot.send_message(ctx.message.channel,
@@ -510,6 +517,7 @@ async def get_explanation(ctx):
 # id command
 @bot.command(name="id", pass_context=True)
 async def get_id(ctx):
+    await bot.send_typing(ctx.message.channel)
     # fetch user id
     args = ctx.message.content.split(" ")
 
@@ -621,7 +629,7 @@ async def status_replay(ctx):
 # when bot user is ready, prints "READY", and set presence
 @bot.event
 async def on_ready():
-    await bot.change_presence(game=Game(name=f"with a TI-84 ({BOT_PREFIX}help)", url="https://calculated.gg"))
+    await bot.change_presence(game=Game(name=f"with a TI-84 ({BOT_PREFIX}help)"))
     print('READY')
 
 
