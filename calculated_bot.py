@@ -114,7 +114,7 @@ async def get_help(ctx):
             text="Note: alle parameters can have mixed up upper-/lowercase letters, and the bot will still recognize it.")
         profile_help_embed.set_author(name="Profile",
                                     icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504677577722691598/person_1058425.png")
-        profile_help_embed.add_field(name="Descrition", value="Shows the profile for the given id.", inline=False)
+        profile_help_embed.add_field(name="Description", value="Shows the profile for the given id.", inline=False)
         profile_help_embed.add_field(name="Arguments", value="{BOT_PREFIX}profile takes in the following parameters: `id`",
                                    inline=False)
         profile_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with {BOT_PREFIX}id)"
