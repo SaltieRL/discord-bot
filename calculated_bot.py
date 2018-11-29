@@ -4,6 +4,7 @@ import datetime
 import json
 import sys
 
+from discord.errors import Forbidden
 from discord import Game
 import discord
 import requests
@@ -204,8 +205,10 @@ async def get_help(ctx):
     if final_embed == 1:
         await bot.send_message(ctx.message.channel, "Command does not seem to exist, or the command does not have any additional information. Please try again.")
     else:
-        await bot.send_message(ctx.message.channel, embed=final_embed)
-
+        try:
+            await bot.send_message(ctx.message.author, embed=final_embed)
+        except Forbidden:
+            await bot.send_message(ctx.message.channel, embed=final_embed)
 
 # queue command
 @bot.command(name="queue", aliases="q", pass_context=True)
