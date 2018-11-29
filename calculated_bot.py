@@ -16,7 +16,6 @@ except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
 
-
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
 
@@ -71,6 +70,7 @@ async def ping(ctx):
 @bot.command(name="help", aliases="h", pass_context=True)
 async def get_help(ctx):
     args = ctx.message.content.lower().split(" ")
+    final_embed = 1
 
     # if the message only contains the !help, send the help_embed
     if len(args) == 1:
@@ -92,26 +92,26 @@ async def get_help(ctx):
         help_embed.add_field(name="c+upload (optional -q)", value="Uploads attached replay", inline=False)
         help_embed.add_field(name="c+status <replay_id>", value="Returns the status of an uploaded replay", inline=False)
 
-        await bot.send_message(ctx.message.channel, embed=help_embed)
+        final_embed = help_embed
 
     # otherwise if the first argument is "profile", send the stats_help_embed
     elif args[1] == "profile":
-        stats_help_embed = discord.Embed(
+        profile_help_embed = discord.Embed(
             description="c+profile <id>",
             colour=discord.Colour.blue()
         )
 
-        stats_help_embed.set_footer(
+        profile_help_embed.set_footer(
             text="Note: alle parameters can have mixed up upper-/lowercase letters, and the bot will still recognize it.")
-        stats_help_embed.set_author(name="Profile",
+        profile_help_embed.set_author(name="Profile",
                                     icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504677577722691598/person_1058425.png")
-        stats_help_embed.add_field(name="Descrition", value="Shows the profile for the given id.", inline=False)
-        stats_help_embed.add_field(name="Arguments", value="c+profile takes in the following parameters: `id`",
+        profile_help_embed.add_field(name="Descrition", value="Shows the profile for the given id.", inline=False)
+        profile_help_embed.add_field(name="Arguments", value="c+profile takes in the following parameters: `id`",
                                    inline=False)
-        stats_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with c+id)"
+        profile_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with c+id)"
                                                              "\n The players username, more succesful if you use the id instead of the username.")
+        final_embed = profile_help_embed
 
-        await bot.send_message(ctx.message.channel, embed=stats_help_embed)
     # if first argument is stat send stats_help_embed
     elif args[1] == "stat":
 
@@ -131,7 +131,9 @@ async def get_help(ctx):
 
         for i, l in enumerate(chunks(stats_list, 25)):
             stats_help_embed.add_field(name='Stats ' + str(i + 1), value=", ".join(l))
-        await bot.send_message(ctx.message.channel, embed=stats_help_embed)
+
+        final_embed = stats_help_embed
+
     # if first argument is replays send replays_help_embed
     elif args[1] == "replays":
         replays_help_embed = discord.Embed(
@@ -144,7 +146,8 @@ async def get_help(ctx):
         replays_help_embed.add_field(name="id accepts: ", value="The Calculated.gg id of a user (can be found with c+id)", inline=False)
         replays_help_embed.add_field(name="amount accepts: ", value="an integer between 1 and 10. If no amount is given, bot will give 5 replays", inline=False)
 
-        await bot.send_message(ctx.message.channel, embed=replays_help_embed)
+        final_embed = replays_help_embed
+
     # if first argument is explain send explain_help_embed
     elif args[1] == "explain":
         accepts = ""
@@ -160,7 +163,8 @@ async def get_help(ctx):
         explain_help_embed.add_field(name="Arguments", value="c+explain takes the following arguments: `stat`", inline=False)
         explain_help_embed.add_field(name="stat accepts", value=accepts)
 
-        await bot.send_message(ctx.message.channel, embed=explain_help_embed)
+        final_embed = explain_help_embed
+
     elif args[1] == "ranks":
         ranks_help_embed = discord.Embed(
             description="c+ranks <id>",
@@ -170,31 +174,37 @@ async def get_help(ctx):
         ranks_help_embed.add_field(name="Description", value="Shows the ranks for the given id.", inline=False)
         ranks_help_embed.add_field(name="Arguments", value="c+ranks takes the followig arguments: `id`", inline=False)
         ranks_help_embed.add_field(name="id accepts", value="A Calculated.gg ID. Can be found with c+id")
-        await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
+
+        final_embed = ranks_help_embed
+
     elif args[1] == "upload":
-        ranks_help_embed = discord.Embed(
+        upload_help_embed = discord.Embed(
             description="c+upload (optional -q)",
             color=discord.Color.blue()
         )
-        ranks_help_embed.set_author(name="upload")
-        ranks_help_embed.add_field(name="Description", value="Uploads the attached replay to calculated.gg", inline=False)
-        ranks_help_embed.add_field(name="Arguments", value="c+upload takes the followig optional argument: `-q`", inline=False)
-        ranks_help_embed.add_field(name="-q", value="Stops the bot from replying to the upload command if it uploads correctly")
-        await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
+        upload_help_embed.set_author(name="upload")
+        upload_help_embed.add_field(name="Description", value="Uploads the attached replay to calculated.gg", inline=False)
+        upload_help_embed.add_field(name="Arguments", value="c+upload takes the followig optional argument: `-q`", inline=False)
+        upload_help_embed.add_field(name="-q", value="Stops the bot from replying to the upload command if it uploads correctly")
+
+        final_embed = upload_help_embed
+
     elif args[1] == "status":
-        ranks_help_embed = discord.Embed(
+        status_help_embed = discord.Embed(
             description="c+status <replay_id>",
             color=discord.Color.blue()
         )
-        ranks_help_embed.set_author(name="status")
-        ranks_help_embed.add_field(name="Description", value="Returns the status of uploaded replay", inline=False)
-        ranks_help_embed.add_field(name="Arguments", value="c+status takes the followig optional argument: `<replay_id>`", inline=False)
-        ranks_help_embed.add_field(name="<replay_id>", value="Given to the user after uploading a replay using the bot")
-        await bot.send_message(ctx.message.channel, embed=ranks_help_embed)
-    # if the arguments does not match any embed, send an error message
+        status_help_embed.set_author(name="status")
+        status_help_embed.add_field(name="Description", value="Returns the status of uploaded replay", inline=False)
+        status_help_embed.add_field(name="Arguments", value="c+status takes the followig optional argument: `<replay_id>`", inline=False)
+        status_help_embed.add_field(name="<replay_id>", value="Given to the user after uploading a replay using the bot")
+
+        final_embed = status_help_embed
+
+    if final_embed == 1:
+        await bot.send_message(ctx.message.channel, "Command does not seem to exist, or the command does not have any additional information. Please try again.")
     else:
-        await bot.send_message(ctx.message.channel,
-                               "Command does not seem to exist, or the command does not have any additional information. Please try again.")
+        await bot.send_message(ctx.message.channel, embed=final_embed)
 
 
 # queue command
