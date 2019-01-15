@@ -346,7 +346,7 @@ async def get_rank(ctx):
     stats_embed.set_thumbnail(url=avatar_link)
     order = ['duel', 'doubles', 'solo', 'standard', 'hoops', 'rumble', 'dropshot', 'snowday']
     for playlist in order:
-        stats_embed.add_field(name=playlist.title(), value=ranks[playlist]['name'] + " - " + ranks[playlist]['rating'])
+        stats_embed.add_field(name=playlist.title(), value=ranks[playlist]['name'] + " - " + str(ranks[playlist]['rating']))
 
     # send embed
     await bot.send_message(ctx.message.channel, embed=stats_embed)
