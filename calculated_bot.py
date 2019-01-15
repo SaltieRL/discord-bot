@@ -198,7 +198,7 @@ async def get_help(ctx):
         )
         ranks_help_embed.set_author(name="Ranks")
         ranks_help_embed.add_field(name="Description", value="Shows the ranks for the given id.", inline=False)
-        ranks_help_embed.add_field(name="Arguments", value="{BOT_PREFIX}ranks takes the followig arguments: `id`", inline=False)
+        ranks_help_embed.add_field(name="Arguments", value="{BOT_PREFIX}ranks takes the following arguments: `id`", inline=False)
         ranks_help_embed.add_field(name="id accepts", value="A Calculated.gg ID. Can be found with {BOT_PREFIX}id")
 
         final_embed = ranks_help_embed
@@ -346,7 +346,7 @@ async def get_rank(ctx):
     stats_embed.set_thumbnail(url=avatar_link)
     order = ['duel', 'doubles', 'solo', 'standard', 'hoops', 'rumble', 'dropshot', 'snowday']
     for playlist in order:
-        stats_embed.add_field(name=playlist.title(), value=ranks[playlist]['name'])
+        stats_embed.add_field(name=playlist.title(), value=ranks[playlist]['name'] + " - " + ranks[playlist]['rating'])
 
     # send embed
     await bot.send_message(ctx.message.channel, embed=stats_embed)
