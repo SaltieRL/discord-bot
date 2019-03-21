@@ -1,3 +1,5 @@
+import hashlib
+
 from explanations_list import explanations
 
 import datetime
@@ -5,7 +7,7 @@ import json
 import sys
 
 from discord.errors import Forbidden
-from discord import Game
+from discord import Game, ChannelType
 import discord
 import requests
 from discord.ext.commands import Bot
@@ -71,7 +73,8 @@ async def get_help(ctx):
     await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.lower().split(" ")
     final_embed = 1
-
+    if ctx.message.channel.type != ChannelType.private and ctx.message.channel.type != ChannelType.group:
+        await bot.send_message(ctx.message.channel, "Check your PMs!")
     # if the message only contains the !help, send the help_embed
     if len(args) == 1:
         help_embed = discord.Embed(
@@ -364,11 +367,14 @@ async def get_stat(ctx):
         return
 
     stat = args[1].replace('_', ' ')
-    ids_maybe = args[2:]
+    ids_maybe = [i.replace('_', ' ') for i in args[2:]]
     # if only one id is given
     if len(ids_maybe) == 1:
         id = resolve_custom_url(ids_maybe[0])
-        stats = get_json("https://calculated.gg/api/player/{}/play_style/all".format(id))['dataPoints']
+        url = "https://calculated.gg/api/player/{}/play_style/all".format(id)
+        if len(id) == 11 and id[0] == 'b' and id[-1] == 'b':
+            url += "?playlist=8"
+        stats = get_json(url)['dataPoints']
         matches = [s for s in stats if s['name'] == stat]
         # if stat does not match tell user so
         if len(matches) == 0:
@@ -392,7 +398,10 @@ async def get_stat(ctx):
         for name in ids_maybe:
             id = resolve_custom_url(name)
             name = get_player_profile(id)[1]
-            stats = get_json("https://calculated.gg/api/player/{}/play_style/all".format(id))['dataPoints']
+            url = "https://calculated.gg/api/player/{}/play_style/all".format(id)
+            if len(id) == 11 and id[0] == 'b' and id[-1] == 'b':
+                url += "?playlist=8"
+            stats = get_json(url)['dataPoints']
             matches = [s for s in stats if s['name'] == stat]
             if len(matches) == 0:
                 await bot.send_message(ctx.message.channel, "Could not find stat: {}".format(stat))
