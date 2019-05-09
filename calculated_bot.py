@@ -13,13 +13,15 @@ import requests
 from discord.ext.commands import Bot
 
 try:
-    from config import TOKEN, BOT_PREFIX
+    from config_example import TOKEN, BOT_PREFIX
 except ImportError:
     print('Unable to run bot, as token does not exist!')
     sys.exit()
 
 bot = Bot(BOT_PREFIX)
 bot.remove_command("help")
+
+NotLinked = True
 
 
 def get_json(url):
@@ -274,9 +276,49 @@ async def get_profile(ctx):
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
-        await bot.send_message(ctx.message.channel,
+        PastUsers = open("UserIDs.txt", "r+")
+        NotLinked = True
+        for line in PastUsers:
+            check = line
+            check = check.strip()
+            check = check.split(":")
+            ##print(check)
+            if check[0] == ctx.message.author.id:
+                NotLinked = False
+                break
+            else:
+                NotLinked = True
+        if NotLinked:
+            await bot.send_message(ctx.message.channel,
                                f"Not enough arguments! The proper form of this command is: `{BOT_PREFIX}profile <id>`")
-        return
+            return
+        else:
+                # fetches the profile for the ID. if user can not be found, tell the user so.
+            id = check[1]
+            response_stats = get_json("https://calculated.gg/api/player/{}/profile_stats".format(id))
+
+            car_name = response_stats["car"]["carName"]
+            car_percentage = str(round(response_stats["car"]["carPercentage"] * 100, 1)) + "%"
+            avatar_link, avatar_name, platform, past_names = get_player_profile(id)
+
+            list_past_names = ""
+            for name in past_names:
+                list_past_names = list_past_names + name + "\n"
+
+            # creates stats_embed
+            stats_embed = discord.Embed(
+                color=discord.Color.blue()
+            )
+
+            stats_embed.set_author(name=avatar_name, url="https://calculated.gg/players/{}/overview".format(id),
+                                   icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+            stats_embed.set_thumbnail(url=avatar_link)
+            stats_embed.add_field(name="Favourite car", value=car_name + " (" + car_percentage + ")")
+            stats_embed.add_field(name="Past names", value=list_past_names)
+
+            # send message
+            await bot.send_message(ctx.message.channel, embed=stats_embed)
+            return
     elif len(args) > 2:
         await bot.send_message(ctx.message.channel,
                                f"Too many arguments! The proper form of this command is: `{BOT_PREFIX}profile <id>`")
@@ -320,8 +362,45 @@ async def get_rank(ctx):
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
-        await bot.send_message(ctx.message.channel,
-                               f"Not enough arguments! The proper form of this command is: `{BOT_PREFIX}ranks <id>`")
+        PastUsers = open("UserIDs.txt", "r+")
+        NotLinked = True
+        for line in PastUsers:
+            check = line
+            check = check.strip()
+            check = check.split(":")
+            ##print(check)
+            if check[0] == ctx.message.author.id:
+                NotLinked = False
+                break
+            else:
+                NotLinked = True
+        if NotLinked:
+            await bot.send_message(ctx.message.channel,
+                               f"Not enough arguments! The proper form of this command is: `{BOT_PREFIX}profile <id>`")
+            return
+        else:
+                # fetches the profile for the ID. if user can not be found, tell the user so.
+            id = check[1]
+            avatar_link, avatar_name, platform, past_names = get_player_profile(id)
+
+            # get user's ranks
+            ranks = get_json("https://calculated.gg/api/player/{}/ranks".format(id))
+
+            # create embed
+            stats_embed = discord.Embed(
+                color=discord.Color.blue()
+            )
+
+            stats_embed.set_author(name=avatar_name, url="https://calculated.gg/players/{}/overview".format(id),
+                                   icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
+            stats_embed.set_thumbnail(url=avatar_link)
+            order = ['duel', 'doubles', 'solo', 'standard', 'hoops', 'rumble', 'dropshot', 'snowday']
+            for playlist in order:
+                stats_embed.add_field(name=playlist.title(), value=ranks[playlist]['name'] + " - " + str(ranks[playlist]['rating']))
+
+            # send embed
+            await bot.send_message(ctx.message.channel, embed=stats_embed)
+            
         return
     elif len(args) > 2:
         await bot.send_message(ctx.message.channel,
@@ -640,6 +719,49 @@ async def status_replay(ctx):
 
     await bot.send_message(ctx.message.channel, message)
     return
+
+#Command for linking accounts so that commands are quicker to run (And to stop me from looking stupid when I forget to put my account on the end of commands)
+@bot.command(name="link", aliases=["l"], pass_context=True)
+async def test(ctx):
+    #Gets id that is being linked to 
+    args = ctx.message.content.split(" ")
+    UserID = args[1]
+    UserID = resolve_custom_url(args[1])
+    #Opens text document with linked names
+    PastUsers = open("UserIDs.txt", "r+")
+    NotLinked = True
+    #Gets names from text document
+    for line in PastUsers:
+        check = line
+        check = check.strip()
+        check = check.split(":")
+        ##print(check)
+        #Checks to see if an account is already linked to discord account
+        if check[0] == ctx.message.author.id:
+            await bot.send_message(ctx.message.channel, "Your account is already linked!")
+            NotLinked = False
+            break
+        else:
+            NotLinked = True
+    if NotLinked:
+        #If the user isn't linked, tries to link with the account name / id given
+        try:
+            sender = ctx.message.author.id
+            save_info = sender + ":" + UserID + "\n"
+            ##print(save_info)
+            #Saves linked account info to text document then closes it and tells them it is linked
+            if UserID == "User not found":
+                            await bot.send_message(ctx.message.channel, "User could not be found, please try again.")
+                            return
+            else:
+                PastUsers.write(save_info)
+                PastUsers.close()
+                await bot.send_message(ctx.message.channel, "Account Successfully linked!")
+            
+        except:
+            await bot.send_message(ctx.message.channel, "User could not be found, please try again.")
+            return
+    ##print("Working")
 
 
 # when bot user is ready, prints "READY", and set presence
