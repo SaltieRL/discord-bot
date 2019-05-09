@@ -367,7 +367,7 @@ async def get_rank(ctx):
         for line in PastUsers:
             check = line
             check = check.strip()
-            check = check.split(":")
+            check = line.strip().split(":")
             ##print(check)
             if check[0] == ctx.message.author.id:
                 NotLinked = False
