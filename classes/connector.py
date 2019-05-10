@@ -15,6 +15,7 @@ class Connector:
     # Discord seems to support the most commands
     # So all commands will be based on discord
 
+
     # each connector will implement commands as it can
     commands = {}
 
@@ -22,6 +23,11 @@ class Connector:
     precommand_processors = {}
 
     prefix = "!"
+
+    # Default bad command response
+    bad_command_response = "Not a command. To see a list of commands, run " + prefix + "list - You can use " + prefix + "help on any command to get a description"
+
+    wrong_arguments = "Invalid arguments. "
 
     def __init__(self):
         pass
@@ -51,7 +57,10 @@ class Connector:
 
             # Make sure we have supplied something besides prefix
             if len(message_components) == 0:
-                print("Handle no command")
+                say = Message().set_target(channel)
+                say.add_field(name="", value=self.bad_command_response)
+                await self.send_message(say)
+
                 return
 
             # Get command and drop out of array
@@ -60,12 +69,18 @@ class Connector:
 
             # make sure command exists
             if command not in self.commands:
-                print("Handle not a command")
+                say = Message().set_target(channel)
+                say.add_field(name="", value=self.bad_command_response)
+                await self.send_message(say)
+
                 return
 
             # Make sure we have supplied the right amount of arguments
             if len(message_components) != self.commands[command].requiredArgs and self.commands[command].requiredArgs != -1:
-                print("Handle incorrect argument count")
+                say = Message().set_target(channel)
+                say.add_field(name="", value=self.wrong_arguments + " Command requires " + str(self.commands[command].requiredArgs) + " arguments. See " + self.prefix + "help " + command)
+                await self.send_message(say)
+
                 return
 
             # Everything is okay, so pass args into command

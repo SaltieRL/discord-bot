@@ -6,6 +6,7 @@ connector = DiscordConnector()
 
 commands = {
     "help": HelpCommand(connector),
+    "list": ListCommand(connector),
     "queue": QueueCommand(connector),
     "fullqueue": FullQueueCommand(connector),
     "profile": ProfileCommand(connector),

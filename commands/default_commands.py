@@ -59,6 +59,23 @@ class HelpCommand(Command):
         await self.send_message(message)
 
 
+class ListCommand(Command):
+    requiredArgs = 0
+
+    helpMessage = "Lists available commands. Requires no arguments"
+
+    command_list = []
+
+    async def action(self, sender, channel, args):
+        for command_name, command in self.connector.commands:
+            self.command_list.append(command_name)
+        self.command_list.sort()
+
+        say = Message().set_target(channel)
+        say.add_field(name="Available Commands", value="\n".join(self.command_list))
+        await self.send_message(say)
+
+
 class QueueCommand(Command):
     requiredArgs = 0
     helpMessage = "Shows current amount of replays in the queue."
