@@ -9,6 +9,7 @@
 ###################################################
 
 import requests
+import datetime
 from classes.command import Command
 from classes.message import Message
 
@@ -45,16 +46,18 @@ class HelpCommand(Command):
     requiredArgs = 1
 
     # Simple message there...
-    helpMessage = """do <prefix>help [command name] for more information on a command.
-    To see all commands, try <prefix>listcommands"""
+    helpMessage = """do <prefix>help [command name] for more information on a command. To see all commands, try <prefix>list"""
 
     async def action(self, sender, channel, args):
+        self.helpMessage = self.helpMessage.replace("<prefix>", self.connector.prefix)
+
         if args[0] not in self.connector.commands:
             await self.send_message(Message().set_target(channel).add_field(name="Not a command", value=args[0]))
 
         message = Message().set_target(channel)
         message.set_author(name="Help", icon_url="https://i.imgur.com/LqUmKRh.png", url="")
         message.add_field(name=args[0], value=self.connector.commands[args[0]].helpMessage)
+        message.add_field(name="Required Arguments", value=str(self.connector.commands[args[0]].requiredArgs))
 
         await self.send_message(message)
 
@@ -62,12 +65,12 @@ class HelpCommand(Command):
 class ListCommand(Command):
     requiredArgs = 0
 
-    helpMessage = "Lists available commands. Requires no arguments"
+    helpMessage = "Lists available commands."
 
     command_list = []
 
     async def action(self, sender, channel, args):
-        for command_name, command in self.connector.commands:
+        for command_name, command in self.connector.commands.items():
             self.command_list.append(command_name)
         self.command_list.sort()
 
@@ -148,3 +151,48 @@ class RanksCommand(Command):
             message.add_field(name=playlist.title(), value=ranks[playlist]['name'] + " - " + str(ranks[playlist]['rating']))
 
         await self.send_message(message)
+
+
+class ReplaysCommand(Command):
+    requiredArgs = 2
+    helpMessage = "Get replays for a play. (max of 10)"
+
+    async def action(self, sender, channel, args):
+        player_id = get_player_id(args[0])
+        requested_replay_count = int(args[1])
+        say = Message().set_target(channel)
+
+        if not (0 < requested_replay_count <= 10):
+            say.add_field(name="Error", value="Number of replays must be between 1 and 10")
+            await self.send_message(say)
+            return
+
+        url = "https://calculated.gg/api/player/{}/match_history?page=0&limit={}".format(player_id, requested_replay_count)
+
+        response = requests.get(url).json()
+
+        user_replay_count = response["totalCount"]
+        all_replay_info = response["replays"]
+
+        for replay in all_replay_info[:int(user_replay_count)]:
+            date_str = replay['date']
+            date_obj = datetime.datetime.strptime(date_str, "%Y-%m-%dT%H:%M:%S")
+            date_str = date_obj.strftime("%b %d %H:%M")
+
+            blue_wins = replay['gameScore']['team0Score'] > replay['gameScore']['team1Score']
+            blue_ids = [plr['id'] for plr in replay['players'] if plr['isOrange'] is False]
+            on_blue = (args[0] in blue_ids)
+            win = not (blue_wins ^ on_blue)
+            lines = [
+                # "Link: [{}]({})".format(replay['id'], "https://calculated.gg/replays/" + replay['id']),
+                "Score: " + "{}-{}".format(replay['gameScore']['team0Score'], replay['gameScore']['team1Score'])
+            ]
+            msg = ""
+            for line in lines:
+                msg += line + "\n"
+
+            say.add_field(
+                name="{} ({})".format(replay['gameMode'], date_str),
+                value="Win! " if win else "Loss! " + msg)
+
+        await self.send_message(say)

@@ -15,7 +15,8 @@ commands = {
     "queue": QueueCommand(connector),
     "fullqueue": FullQueueCommand(connector),
     "profile": ProfileCommand(connector),
-    "ranks": RanksCommand(connector)
+    "ranks": RanksCommand(connector),
+    "replays": ReplaysCommand(connector)
 }
 precommand_processors = {
     ProfanityCheckProcessor(connector)
