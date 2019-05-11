@@ -43,10 +43,10 @@ def get_player_profile(player_id):
 # Help command, gets help message for given command
 class HelpCommand(Command):
     # Requires one arg. The name of the command
-    requiredArgs = 1
+    requiredArgs = ["[command]"]
 
     # Simple message there...
-    helpMessage = """do <prefix>help [command name] for more information on a command. To see all commands, try <prefix>list"""
+    helpMessage = "Gets description and usage of a command"
 
     async def action(self, sender, channel, args):
         self.helpMessage = self.helpMessage.replace("<prefix>", self.connector.prefix)
@@ -57,14 +57,14 @@ class HelpCommand(Command):
         message = Message().set_target(channel)
         message.set_author(name="Help", icon_url="https://i.imgur.com/LqUmKRh.png", url="")
         message.add_field(name=args[0], value=self.connector.commands[args[0]].helpMessage)
-        message.add_field(name="Required Arguments", value=str(self.connector.commands[args[0]].requiredArgs))
+        if len(self.connector.commands[args[0]].requiredArgs) > 0:
+            message.add_field(name="Usage", value=args[0] + " " + " ".join(self.connector.commands[args[0]].requiredArgs))
 
         await self.send_message(message)
 
 
 class ListCommand(Command):
-    requiredArgs = 0
-
+    requiredArgs = []
     helpMessage = "Lists available commands."
 
     command_list = []
@@ -80,7 +80,7 @@ class ListCommand(Command):
 
 
 class QueueCommand(Command):
-    requiredArgs = 0
+    requiredArgs = []
     helpMessage = "Shows current amount of replays in the queue."
 
     async def action(self, sender, channel, args):
@@ -93,7 +93,7 @@ class QueueCommand(Command):
 
 
 class FullQueueCommand(Command):
-    requiredArgs = 0
+    requiredArgs = []
     helpMessage = "Shows all replay queues"
 
     async def action(self, sender, channel, args):
@@ -108,7 +108,7 @@ class FullQueueCommand(Command):
 
 
 class ProfileCommand(Command):
-    requiredArgs = 1
+    requiredArgs = ["[player ID]"]
     helpMessage = "Get profile information for player"
 
     async def action(self, sender, channel, args):
@@ -136,7 +136,7 @@ class ProfileCommand(Command):
 
 
 class RanksCommand(Command):
-    requiredArgs = 1
+    requiredArgs = ["[player ID]"]
     helpMessage = "Get rank data for player"
 
     async def action(self, sender, channel, args):
@@ -154,7 +154,7 @@ class RanksCommand(Command):
 
 
 class ReplaysCommand(Command):
-    requiredArgs = 2
+    requiredArgs = ["[player ID]", "[replay count]"]
     helpMessage = "Get replays for a play. (max of 10)"
 
     async def action(self, sender, channel, args):

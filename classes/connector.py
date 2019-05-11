@@ -76,9 +76,9 @@ class Connector:
                 return
 
             # Make sure we have supplied the right amount of arguments
-            if len(message_components) != self.commands[command].requiredArgs and self.commands[command].requiredArgs != -1:
+            if len(message_components) != len(self.commands[command].requiredArgs):
                 say = Message().set_target(channel)
-                say.add_field(name="", value=self.wrong_arguments + " Command requires " + str(self.commands[command].requiredArgs) + " arguments. See " + self.prefix + "help " + command)
+                say.add_field(name="", value=self.wrong_arguments + " Command requires arguments: " + " ".join(self.commands[command].requiredArgs) + ". See " + self.prefix + "help " + command)
                 await self.send_message(say)
 
                 return
