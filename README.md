@@ -9,6 +9,7 @@
 3. [Setup](#setup)
     - [Debian & Ubuntu](#debian--ubuntu)
     - [Windows](#windows-with-chocolatey)
+4. [Todo](#todo)
 
 ## Dependencies
 - Python 3.5.3+
@@ -87,3 +88,11 @@ git clone https://github.com/Skyl3r/Calculated.gg-bot
 ```cmd
 python3 irc_example.py
 ```
+
+
+## Todo
+
+- Add stats command to bring functionality up to main branch
+- Implement way to allow any number of arguments for commands that don't require a specific number of arguments (stats)
+- Create Twitch connector
+- Make sure exceptions are handled for stability
