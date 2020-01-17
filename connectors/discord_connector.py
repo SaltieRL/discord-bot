@@ -26,7 +26,7 @@ class DiscordConnector(Connector, Client):
     def __init__(self):
         Client.__init__(self)
 
-    def connector_run(self):
+    def connegngctor_run(self):
         self.run(self.token)
 
     async def send_message(self, message: Message):

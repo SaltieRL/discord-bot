@@ -10,11 +10,11 @@
 
 from classes.message import Message
 
+
 class Connector:
 
     # Discord seems to support the most commands
     # So all commands will be based on discord
-
 
     # each connector will implement commands as it can
     commands = {}
@@ -53,7 +53,7 @@ class Connector:
 
         if message.startswith(self.prefix):
             # Get everything after the prefix and split by spaces to get command/arguments
-            message_components = message[len(self.prefix):].split(" ")
+            message_components = message[len(self.prefix):].rstrip().split(" ")
 
             # Make sure we have supplied something besides prefix
             if len(message_components) == 0:
@@ -76,9 +76,9 @@ class Connector:
                 return
 
             # Make sure we have supplied the right amount of arguments
-            if len(message_components) != len(self.commands[command].requiredArgs):
+            if len(message_components) != self.commands[command].requiredArgs and self.commands[command].requiredArgs != -1:
                 say = Message().set_target(channel)
-                say.add_field(name="", value=self.wrong_arguments + " Command requires arguments: " + " ".join(self.commands[command].requiredArgs) + ". See " + self.prefix + "help " + command)
+                say.add_field(name="", value=self.wrong_arguments + " Command requires " + str(self.commands[command].requiredArgs) + " arguments. See " + self.prefix + "help " + command)
                 await self.send_message(say)
 
                 return

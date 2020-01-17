@@ -6,7 +6,6 @@ from processors.default_processors import *
 connector = IrcConnector()
 connector.nickname = "RLRankTracker"
 connector.server = "irc.freenode.net"
-connector.channel_list.append("#davc")
 connector.channel_list.append("##rocketleague")
 
 commands = {
@@ -16,7 +15,10 @@ commands = {
     "fullqueue": FullQueueCommand(connector),
     "profile": ProfileCommand(connector),
     "ranks": RanksCommand(connector),
-    "replays": ReplaysCommand(connector)
+    "replays": ReplaysCommand(connector),
+    "entries": EntriesCommand(connector),
+    "submit": SubmitCommand(connector),
+    "vote": VoteCommand(connector)
 }
 precommand_processors = {
     ProfanityCheckProcessor(connector)

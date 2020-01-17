@@ -7,11 +7,17 @@
 # -Skyl3r
 #
 ###################################################
+from typing import Dict, Any
 
 import requests
+from os.path import exists
+import operator
+import json
 import datetime
+from bs4 import BeautifulSoup
 from classes.command import Command
 from classes.message import Message
+from tinydb import TinyDB, Query
 
 ##########################
 # Helper Functions
@@ -34,19 +40,20 @@ def get_player_profile(player_id):
     past_names = response_profile["pastNames"]
 
     return avatar_link, avatar_name, platform, past_names
-
+    print(e)
 
 #########################
 # Commands
 #########################
 
+
 # Help command, gets help message for given command
 class HelpCommand(Command):
     # Requires one arg. The name of the command
-    requiredArgs = ["[command]"]
+    requiredArgs = 1
 
     # Simple message there...
-    helpMessage = "Gets description and usage of a command"
+    helpMessage = """do <prefix>help [command name] for more information on a command. To see all commands, try <prefix>list"""
 
     async def action(self, sender, channel, args):
         self.helpMessage = self.helpMessage.replace("<prefix>", self.connector.prefix)
@@ -57,19 +64,21 @@ class HelpCommand(Command):
         message = Message().set_target(channel)
         message.set_author(name="Help", icon_url="https://i.imgur.com/LqUmKRh.png", url="")
         message.add_field(name=args[0], value=self.connector.commands[args[0]].helpMessage)
-        if len(self.connector.commands[args[0]].requiredArgs) > 0:
-            message.add_field(name="Usage", value=args[0] + " " + " ".join(self.connector.commands[args[0]].requiredArgs))
+        message.add_field(name="Required Arguments", value=str(self.connector.commands[args[0]].requiredArgs))
 
         await self.send_message(message)
 
 
 class ListCommand(Command):
-    requiredArgs = []
+    requiredArgs = 0
+
     helpMessage = "Lists available commands."
 
     command_list = []
 
     async def action(self, sender, channel, args):
+        self.command_list.clear()
+
         for command_name, command in self.connector.commands.items():
             self.command_list.append(command_name)
         self.command_list.sort()
@@ -80,7 +89,7 @@ class ListCommand(Command):
 
 
 class QueueCommand(Command):
-    requiredArgs = []
+    requiredArgs = 0
     helpMessage = "Shows current amount of replays in the queue."
 
     async def action(self, sender, channel, args):
@@ -93,7 +102,7 @@ class QueueCommand(Command):
 
 
 class FullQueueCommand(Command):
-    requiredArgs = []
+    requiredArgs = 0
     helpMessage = "Shows all replay queues"
 
     async def action(self, sender, channel, args):
@@ -108,7 +117,7 @@ class FullQueueCommand(Command):
 
 
 class ProfileCommand(Command):
-    requiredArgs = ["[player ID]"]
+    requiredArgs = 1
     helpMessage = "Get profile information for player"
 
     async def action(self, sender, channel, args):
@@ -136,7 +145,7 @@ class ProfileCommand(Command):
 
 
 class RanksCommand(Command):
-    requiredArgs = ["[player ID]"]
+    requiredArgs = 1
     helpMessage = "Get rank data for player"
 
     async def action(self, sender, channel, args):
@@ -154,7 +163,7 @@ class RanksCommand(Command):
 
 
 class ReplaysCommand(Command):
-    requiredArgs = ["[player ID]", "[replay count]"]
+    requiredArgs = 2
     helpMessage = "Get replays for a play. (max of 10)"
 
     async def action(self, sender, channel, args):
@@ -196,3 +205,90 @@ class ReplaysCommand(Command):
                 value="Win! " if win else "Loss! " + msg)
 
         await self.send_message(say)
+
+
+class SubmitCommand(Command):
+    requiredArgs = 1
+    helpMessage = "Submits a goal for weekly voting"
+
+    async def action(self, sender, channel, args):
+        week_of_year = datetime.date.today().isocalendar()[1]
+
+        shots = TinyDB('shots.json')
+        shot_query = Query()
+        test = shots.search((shot_query.username == sender) & (shot_query.week == week_of_year))
+        if len(test) < 1:
+            shots.insert({'url': args[0], 'username': sender, 'week': week_of_year})
+        else:
+            shots.update({'url': args[0]}, ((shot_query.username == sender) & (shot_query.week == week_of_year)))
+
+        await self.send_message(Message().set_target(channel).add_field(name="", value="Submitted!"))
+
+
+class EntriesCommand(Command):
+    requiredArgs = 0
+    helpMessage = "View weekly submissions to best shot contest"
+
+    async def action(self, sender, channel, args):
+        week_of_year = datetime.date.today().isocalendar()[1]
+
+        messages = []
+
+        shots = TinyDB('shots.json')
+        votes = TinyDB('votes.json')
+
+        shots_query = Query()
+        vote_query = Query()
+        current_shots = shots.search(shots_query.week == week_of_year)
+
+        if len(current_shots) < 1:
+            msg = Message().set_target(channel)
+            msg.add_field(name="", value="No shots submitted this week")
+            messages.append(msg)
+        else:
+            for shot in current_shots:
+                user_votes = votes.search((vote_query.week == week_of_year) & (vote_query.vote == shot['username']))
+                msg = Message().set_target(channel)
+                msg.add_field(
+                    name="",
+                    value=(shot['username'] + ": " + shot['url'] + " - " + str(len(user_votes)) + " votes!"))
+                messages.append(msg)
+
+        for msg in messages:
+            await self.send_message(msg)
+
+
+class VoteCommand(Command):
+    requiredArgs = 1
+    helpMessage = "Submit a vote for a user's shot submission"
+
+    async def action(self, sender, channel, args):
+        week_of_year = datetime.date.today().isocalendar()[1]
+
+        msg = Message().set_target(channel)
+
+        shots = TinyDB("shots.json")
+        votes = TinyDB("votes.json")
+        vote_query = Query()
+        shots_query = Query()
+
+        shot = shots.search((shots_query.username == args[0]) & (shots_query.week == week_of_year))
+        if len(shot) < 1:
+            msg.add_field(name="", value="No submission for user " + args[0])
+            await self.send_message(msg)
+            return
+
+        test = votes.search((vote_query.username == sender) & (vote_query.week == week_of_year))
+
+        if len(test) < 1:
+            votes.insert({'vote': args[0], 'username': sender, 'week': week_of_year})
+        else:
+            votes.update({'vote': args[0]}, ((vote_query.username == sender) & (vote_query.week == week_of_year)))
+
+        total_votes = votes.search((vote_query.vote == args[0]) & (vote_query.week == week_of_year))
+
+        msg.add_field(name="",
+                      value="Vote submitted for " + args[0] + ". Total votes: " +
+                            str(len(total_votes)) + ".  (" + shot[0]['url'] + ")")
+
+        await self.send_message(msg)
