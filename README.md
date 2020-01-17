@@ -16,7 +16,8 @@
 - [Discord.py](https://github.com/Rapptz/discord.py)
 - [requests](https://github.com/kennethreitz/requests)
 - [Pydle](https://github.com/Shizmob/pydle)
-- [profanity-check](https://github.com/vzhou842/profanity-check)
+- [profanity-check](https://github.com/vzhou842/profanity-check) (Only needed for profanity quick chat responses)
+- [TinyDB](https://pypi.org/project/tinydb/) (Only needed if using goal submission and voting commands)
 
 ## Description
 
@@ -96,3 +97,4 @@ python3 irc_example.py
 - Implement way to allow any number of arguments for commands that don't require a specific number of arguments (stats)
 - Create Twitch connector
 - Make sure exceptions are handled for stability
+- Add documentation for goal submission command
