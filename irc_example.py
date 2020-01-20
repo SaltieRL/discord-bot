@@ -1,5 +1,6 @@
 from connectors.irc_connector import IrcConnector
 from commands.default_commands import *
+from commands.contest_commands import *
 from processors.default_processors import *
 
 # Example of launching discord bot
@@ -18,7 +19,8 @@ commands = {
     "replays": ReplaysCommand(connector),
     "entries": EntriesCommand(connector),
     "submit": SubmitCommand(connector),
-    "vote": VoteCommand(connector)
+    "vote": VoteCommand(connector),
+    'lastwinner': LastWinnerCommand(connector)
 }
 precommand_processors = {
     ProfanityCheckProcessor(connector)
