@@ -116,12 +116,14 @@ async def get_help(ctx):
         profile_help_embed.set_footer(
             text="Note: alle parameters can have mixed up upper-/lowercase letters, and the bot will still recognize it.")
         profile_help_embed.set_author(name="Profile",
-                                    icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504677577722691598/person_1058425.png")
+                                      icon_url="https://cdn.discordapp.com/attachments/495315775423381518/504677577722691598/person_1058425.png")
         profile_help_embed.add_field(name="Description", value="Shows the profile for the given id.", inline=False)
-        profile_help_embed.add_field(name="Arguments", value="{BOT_PREFIX}profile takes in the following parameters: `id`",
-                                   inline=False)
-        profile_help_embed.add_field(name="id accepts:", value="The Calculated.gg id of a user (can be found with {BOT_PREFIX}id)"
-                                                             "\n The players username, more succesful if you use the id instead of the username.")
+        profile_help_embed.add_field(name="Arguments",
+                                     value="{BOT_PREFIX}profile takes in the following parameters: `id`",
+                                     inline=False)
+        profile_help_embed.add_field(name="id accepts:",
+                                     value="The Calculated.gg id of a user (can be found with {BOT_PREFIX}id)"
+                                           "\n The players username, more succesful if you use the id instead of the username.")
         final_embed = profile_help_embed
 
 
@@ -201,7 +203,8 @@ async def get_help(ctx):
         )
         ranks_help_embed.set_author(name="Ranks")
         ranks_help_embed.add_field(name="Description", value="Shows the ranks for the given id.", inline=False)
-        ranks_help_embed.add_field(name="Arguments", value="{BOT_PREFIX}ranks takes the following arguments: `id`", inline=False)
+        ranks_help_embed.add_field(name="Arguments", value="{BOT_PREFIX}ranks takes the following arguments: `id`",
+                                   inline=False)
         ranks_help_embed.add_field(name="id accepts", value="A Calculated.gg ID. Can be found with {BOT_PREFIX}id")
 
         final_embed = ranks_help_embed
@@ -212,9 +215,12 @@ async def get_help(ctx):
             color=discord.Color.blue()
         )
         upload_help_embed.set_author(name="upload")
-        upload_help_embed.add_field(name="Description", value="Uploads the attached replay to calculated.gg", inline=False)
-        upload_help_embed.add_field(name="Arguments", value="{BOT_PREFIX}upload takes the followig optional argument: `-q`", inline=False)
-        upload_help_embed.add_field(name="-q", value="Stops the bot from replying to the upload command if it uploads correctly")
+        upload_help_embed.add_field(name="Description", value="Uploads the attached replay to calculated.gg",
+                                    inline=False)
+        upload_help_embed.add_field(name="Arguments",
+                                    value="{BOT_PREFIX}upload takes the followig optional argument: `-q`", inline=False)
+        upload_help_embed.add_field(name="-q",
+                                    value="Stops the bot from replying to the upload command if it uploads correctly")
 
         final_embed = upload_help_embed
 
@@ -225,18 +231,23 @@ async def get_help(ctx):
         )
         status_help_embed.set_author(name="status")
         status_help_embed.add_field(name="Description", value="Returns the status of uploaded replay", inline=False)
-        status_help_embed.add_field(name="Arguments", value="{BOT_PREFIX}status takes the followig optional argument: `<replay_id>`", inline=False)
-        status_help_embed.add_field(name="<replay_id>", value="Given to the user after uploading a replay using the bot")
+        status_help_embed.add_field(name="Arguments",
+                                    value="{BOT_PREFIX}status takes the followig optional argument: `<replay_id>`",
+                                    inline=False)
+        status_help_embed.add_field(name="<replay_id>",
+                                    value="Given to the user after uploading a replay using the bot")
 
         final_embed = status_help_embed
 
     if final_embed == 1:
-        await bot.send_message(ctx.message.channel, "Command does not seem to exist, or the command does not have any additional information. Please try again.")
+        await bot.send_message(ctx.message.channel,
+                               "Command does not seem to exist, or the command does not have any additional information. Please try again.")
     else:
         try:
             await bot.send_message(ctx.message.author, embed=final_embed)
         except Forbidden:
             await bot.send_message(ctx.message.channel, embed=final_embed)
+
 
 # queue command
 @bot.command(name="queue", aliases=["q"], pass_context=True)
@@ -349,7 +360,8 @@ async def get_rank(ctx):
     stats_embed.set_thumbnail(url=avatar_link)
     order = ['duel', 'doubles', 'solo', 'standard', 'hoops', 'rumble', 'dropshot', 'snowday']
     for playlist in order:
-        stats_embed.add_field(name=playlist.title(), value=ranks[playlist]['name'] + " - " + str(ranks[playlist]['rating']))
+        stats_embed.add_field(name=playlist.title(),
+                              value=ranks[playlist]['name'] + " - " + str(ranks[playlist]['rating']))
 
     # send embed
     await bot.send_message(ctx.message.channel, embed=stats_embed)
@@ -645,7 +657,8 @@ async def status_replay(ctx):
 # when bot user is ready, prints "READY", and set presence
 @bot.event
 async def on_ready():
-    await bot.change_presence(game=Game(name=f"with a TI-84 ({BOT_PREFIX}help)"))
+    game = discord.Game(f"with a TI-84 ({BOT_PREFIX}help)")
+    await bot.change_presence(activity=game)
     print('READY')
 
 
