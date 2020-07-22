@@ -68,7 +68,7 @@ async def ping(ctx):
 
 
 # help command
-@bot.command(name="help", aliases="h", pass_context=True)
+@bot.command(name="help", aliases=["h"], pass_context=True)
 async def get_help(ctx):
     await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.lower().split(" ")
@@ -239,7 +239,7 @@ async def get_help(ctx):
             await bot.send_message(ctx.message.channel, embed=final_embed)
 
 # queue command
-@bot.command(name="queue", aliases="q", pass_context=True)
+@bot.command(name="queue", aliases=["q"], pass_context=True)
 async def display_queue(ctx):
     await bot.send_typing(ctx.message.channel)
     response = get_json("https://calculated.gg/api/global/queue/count")
@@ -268,7 +268,7 @@ async def display_full_queue():
 
 
 # profile command
-@bot.command(name="profile", aliases="p", pass_context=True)
+@bot.command(name="profile", aliases=["p"], pass_context=True)
 async def get_profile(ctx):
     await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.split(" ")
@@ -314,7 +314,7 @@ async def get_profile(ctx):
 
 
 # ranks command
-@bot.command(name="ranks", aliases="rank", pass_context=True)
+@bot.command(name="ranks", aliases=["rank"], pass_context=True)
 async def get_rank(ctx):
     await bot.send_typing(ctx.message.channel)
     args = ctx.message.content.split(" ")
