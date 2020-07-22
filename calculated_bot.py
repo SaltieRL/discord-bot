@@ -64,7 +64,7 @@ def chunks(l, n):
 # ping command
 @bot.command(pass_context=True)
 async def ping(ctx):
-    await ctx.message.channel.send_message("Pong!")
+    await ctx.message.channel.send("Pong!")
 
 
 # help command
@@ -240,13 +240,13 @@ async def get_help(ctx):
         final_embed = status_help_embed
 
     if final_embed == 1:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                "Command does not seem to exist, or the command does not have any additional information. Please try again.")
     else:
         try:
-            await ctx.message.author.send_message(embed=final_embed)
+            await ctx.message.author.send(embed=final_embed)
         except Forbidden:
-            await ctx.message.channel.send_message(embed=final_embed)
+            await ctx.message.channel.send(embed=final_embed)
 
 
 # queue command
@@ -254,7 +254,7 @@ async def get_help(ctx):
 async def display_queue(ctx):
     await ctx.message.channel.trigger_typing()
     response = get_json("https://calculated.gg/api/global/queue/count")
-    await ctx.message.channel.send_message(str(response[2]["count"]) + ' replays in the queue.')
+    await ctx.message.channel.send(str(response[2]["count"]) + ' replays in the queue.')
 
 
 # fullqueue command
@@ -285,11 +285,11 @@ async def get_profile(ctx):
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Not enough arguments! The proper form of this command is: `{BOT_PREFIX}profile <id>`")
         return
     elif len(args) > 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Too many arguments! The proper form of this command is: `{BOT_PREFIX}profile <id>`")
         return
 
@@ -302,7 +302,7 @@ async def get_profile(ctx):
     try:
         avatar_link, avatar_name, platform, past_names = get_player_profile(id)
     except KeyError:
-        await ctx.message.channel.send_message("User could not be found, please try again.")
+        await ctx.message.channel.send("User could not be found, please try again.")
         return
 
     list_past_names = ""
@@ -321,7 +321,7 @@ async def get_profile(ctx):
     stats_embed.add_field(name="Past names", value=list_past_names)
 
     # send message
-    await ctx.message.channel.send_message(embed=stats_embed)
+    await ctx.message.channel.send(embed=stats_embed)
 
 
 # ranks command
@@ -331,11 +331,11 @@ async def get_rank(ctx):
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Not enough arguments! The proper form of this command is: `{BOT_PREFIX}ranks <id>`")
         return
     elif len(args) > 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Too many arguments! The proper form of this command is: `{BOT_PREFIX}ranks <id>`")
         return
 
@@ -344,7 +344,7 @@ async def get_rank(ctx):
     try:
         avatar_link, avatar_name, platform, past_names = get_player_profile(id)
     except KeyError:
-        await ctx.message.channel.send_message("User could not be found, please try again.")
+        await ctx.message.channel.send("User could not be found, please try again.")
         return
 
     # get user's ranks
@@ -364,7 +364,7 @@ async def get_rank(ctx):
                               value=ranks[playlist]['name'] + " - " + str(ranks[playlist]['rating']))
 
     # send embed
-    await ctx.message.channel.send_message(embed=stats_embed)
+    await ctx.message.channel.send(embed=stats_embed)
 
 
 # stat command
@@ -374,7 +374,7 @@ async def get_stat(ctx):
     args = ctx.message.content.split(" ")
     # responds if not enough arguments
     if len(args) < 3:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f'Not enough arguments! The proper form of this command is: `{BOT_PREFIX}stat <stat> <id1> <id2> ...`')
         return
 
@@ -390,10 +390,10 @@ async def get_stat(ctx):
         matches = [s for s in stats if s['name'] == stat]
         # if stat does not match tell user so
         if len(matches) == 0:
-            await ctx.message.channel.send_message("Could not find stat: {}".format(stat))
+            await ctx.message.channel.send("Could not find stat: {}".format(stat))
             return
 
-        await ctx.message.channel.send_message(str(matches[0]['average']))
+        await ctx.message.channel.send(str(matches[0]['average']))
     # else if more ids are given
     else:
         # create embed
@@ -416,12 +416,12 @@ async def get_stat(ctx):
             stats = get_json(url)['dataPoints']
             matches = [s for s in stats if s['name'] == stat]
             if len(matches) == 0:
-                await ctx.message.channel.send_message("Could not find stat: {}".format(stat))
+                await ctx.message.channel.send("Could not find stat: {}".format(stat))
                 return
             stats_embed.add_field(name=name, value=matches[0]['average'], inline=False)
 
         # send embed
-        await ctx.message.channel.send_message(embed=stats_embed)
+        await ctx.message.channel.send(embed=stats_embed)
 
 
 # replays command
@@ -433,11 +433,11 @@ async def get_replays(ctx):
     state = False
     # if there are too many arguments. tell the user so
     if len(args) > 3:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Too many arguments! The proper form of this command is: `{BOT_PREFIX}replays <id> <amount>`")
         return
     elif len(args) < 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Not enough arguments! The proper form of this command is: `{BOT_PREFIX}replays <id> <amount>`")
         return
     elif len(args) == 2:
@@ -458,7 +458,7 @@ async def get_replays(ctx):
     try:
         user_name = get_player_profile(user)[1]
     except KeyError:
-        await ctx.message.channel.send_message("User could not be found, please try again.")
+        await ctx.message.channel.send("User could not be found, please try again.")
         return
 
     # devide the information of the replays
@@ -504,7 +504,7 @@ async def get_replays(ctx):
         replays_embed.add_field(name="Rest of replays can be found here: ", value=link, inline=False)
 
     # send embed
-    await ctx.message.channel.send_message(embed=replays_embed)
+    await ctx.message.channel.send(embed=replays_embed)
 
 
 # explain command
@@ -513,11 +513,11 @@ async def get_explanation(ctx):
     await ctx.message.channel.trigger_typing()
     args = ctx.message.content.split(" ")
     if len(args) < 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Not enough arguments! The proper form of this command is: `{BOT_PREFIX}explain <stat>`")
         return
     if len(args) > 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Too many arguments! The proper form of this command is: `{BOT_PREFIX}explain <stat>`")
         return
 
@@ -526,7 +526,7 @@ async def get_explanation(ctx):
     try:
         response = explanations[stat]
     except KeyError:
-        await ctx.message.channel.send_message("Stat does not seem to exist, please try again.")
+        await ctx.message.channel.send("Stat does not seem to exist, please try again.")
         return
 
     explanation = response[0]
@@ -539,7 +539,7 @@ async def get_explanation(ctx):
     )
 
     # send embed
-    await ctx.message.channel.send_message(embed=explain_embed)
+    await ctx.message.channel.send(embed=explain_embed)
 
 
 # id command
@@ -550,11 +550,11 @@ async def get_id(ctx):
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Not enough arguments! The proper form of this command is. `{BOT_PREFIX}id <username>`")
         return
     if len(args) > 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Too many arguments! The proper form of this command is: `{BOT_PREFIX}id <username>`")
         return
 
@@ -562,9 +562,9 @@ async def get_id(ctx):
 
     # send response
     try:
-        await ctx.message.channel.send_message("Your id is: " + user_id)
+        await ctx.message.channel.send("Your id is: " + user_id)
     except TypeError:
-        await ctx.message.channel.send_message("User could not be found, please try again.")
+        await ctx.message.channel.send("User could not be found, please try again.")
         return
 
 
@@ -573,7 +573,7 @@ async def get_id(ctx):
 async def upload_file(ctx):
     args = ctx.message.content.split(" ")
     if len(args) > 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Too many arguments! The proper form of this command is: `{BOT_PREFIX}upload` and provide a file")
         return
     if len(args) > 1 and args[1] == '-q':
@@ -596,7 +596,7 @@ async def upload_file(ctx):
         reply = requests.post(up_url, files=replays)
         if not list(reply.json()):
             message = 'No files uploaded, not a replay'
-            await ctx.message.channel.send_message(message)
+            await ctx.message.channel.send(message)
             return
 
         if reply.status_code == 202:
@@ -615,9 +615,9 @@ async def upload_file(ctx):
         else:
             message = 'No files uploaded, error ' + reply.status_code
 
-        await ctx.message.channel.send_message(message)
+        await ctx.message.channel.send(message)
     else:
-        await ctx.message.channel.send_message('Please provide a replay file as an attachment')
+        await ctx.message.channel.send('Please provide a replay file as an attachment')
     return
 
 
@@ -626,7 +626,7 @@ async def upload_file(ctx):
 async def status_replay(ctx):
     args = ctx.message.content.split(" ")
     if len(args) > 2:
-        await ctx.message.channel.send_message(
+        await ctx.message.channel.send(
                                f"Too many arguments! The proper form of this command is: `{BOT_PREFIX}status <task_id>`")
         return
 
@@ -650,7 +650,7 @@ async def status_replay(ctx):
     else:
         message = 'Invalid id'
 
-    await ctx.message.channel.send_message(message)
+    await ctx.message.channel.send(message)
     return
 
 
