@@ -70,7 +70,7 @@ async def ping(ctx):
 # help command
 @bot.command(name="help", aliases=["h"], pass_context=True)
 async def get_help(ctx):
-    await ctx.message.channel.send_typing()
+    await ctx.message.channel.trigger_typing()
     args = ctx.message.content.lower().split(" ")
     final_embed = 1
     if ctx.message.channel.type != ChannelType.private and ctx.message.channel.type != ChannelType.group:
@@ -252,7 +252,7 @@ async def get_help(ctx):
 # queue command
 @bot.command(name="queue", aliases=["q"], pass_context=True)
 async def display_queue(ctx):
-    await ctx.message.channel.send_typing()
+    await ctx.message.channel.trigger_typing()
     response = get_json("https://calculated.gg/api/global/queue/count")
     await ctx.message.channel.send_message(str(response[2]["count"]) + ' replays in the queue.')
 
@@ -281,7 +281,7 @@ async def display_full_queue():
 # profile command
 @bot.command(name="profile", aliases=["p"], pass_context=True)
 async def get_profile(ctx):
-    await ctx.message.channel.send_typing()
+    await ctx.message.channel.trigger_typing()
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
@@ -327,7 +327,7 @@ async def get_profile(ctx):
 # ranks command
 @bot.command(name="ranks", aliases=["rank"], pass_context=True)
 async def get_rank(ctx):
-    await ctx.message.channel.send_typing()
+    await ctx.message.channel.trigger_typing()
     args = ctx.message.content.split(" ")
 
     if len(args) < 2:
@@ -370,7 +370,7 @@ async def get_rank(ctx):
 # stat command
 @bot.command(name="stat", aliases=["s", "stats"], pass_context=True)
 async def get_stat(ctx):
-    await ctx.message.channel.send_typing()
+    await ctx.message.channel.trigger_typing()
     args = ctx.message.content.split(" ")
     # responds if not enough arguments
     if len(args) < 3:
@@ -427,7 +427,7 @@ async def get_stat(ctx):
 # replays command
 @bot.command(name="replays", pass_context=True)
 async def get_replays(ctx):
-    await ctx.message.channel.send_typing()
+    await ctx.message.channel.trigger_typing()
     args = ctx.message.content.split(" ")
     set_replay_count = True
     state = False
@@ -510,7 +510,7 @@ async def get_replays(ctx):
 # explain command
 @bot.command(name="explain", aliases=["e", "ex", "expl"], pass_context=True)
 async def get_explanation(ctx):
-    await ctx.message.channel.send_typing()
+    await ctx.message.channel.trigger_typing()
     args = ctx.message.content.split(" ")
     if len(args) < 2:
         await ctx.message.channel.send_message(
@@ -545,7 +545,7 @@ async def get_explanation(ctx):
 # id command
 @bot.command(name="id", pass_context=True)
 async def get_id(ctx):
-    await ctx.message.channel.send_typing()
+    await ctx.message.channel.trigger_typing()
     # fetch user id
     args = ctx.message.content.split(" ")
 
