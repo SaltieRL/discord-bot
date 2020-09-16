@@ -358,7 +358,7 @@ async def get_rank(ctx):
     stats_embed.set_author(name=avatar_name, url="https://calculated.gg/players/{}/overview".format(id),
                            icon_url="https://media.discordapp.net/attachments/495315775423381518/499488781536067595/bar_graph-512.png")
     stats_embed.set_thumbnail(url=avatar_link)
-    order = ['duel', 'doubles', 'solo', 'standard', 'hoops', 'rumble', 'dropshot', 'snowday']
+    order = ['duel', 'doubles', 'standard', 'hoops', 'rumble', 'dropshot', 'snowday']
     for playlist in order:
         stats_embed.add_field(name=playlist.title(),
                               value=ranks[playlist]['name'] + " - " + str(ranks[playlist]['rating']))
